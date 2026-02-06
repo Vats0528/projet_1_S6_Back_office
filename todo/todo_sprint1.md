@@ -11,9 +11,7 @@ A faire -> TL
             -[x] todo et distribution des tache ( en cours )
             -[x] faire et commit [TABLE_sprint_1_2026_02_06.sql] (type:[feat])
             -[ ]  commit une version de donnee de base de teste [init-sql]
-            -[]
-            -[]
-            -[] Final merge pour les feature
+            -[ ] Final merge pour les feature
         [staging]   (repo_BO)
             [ ]- simulation data
             [ ]- cheery pick -> release-06-02-2026(from main) /merge main
@@ -47,7 +45,10 @@ A faire -> BO
 
 
 
+STATUS :
 
-liste todo [ENCOURS]
+liste todo                 [x]
+statu todo(avancement) [ENCOURS]    : 6/10
+etape actuelle du workflow sprint 1 : Env Dev , Branche feature  [BO / FO]
 
-statu todo [ENCOURS]
+
