@@ -38,9 +38,9 @@ A faire -> FO
 
 A faire -> BO
 [objectif-par-end-point]
-    [ ] -[HOTEL]      : optionnel entre (CRUD  , SCRIPT avec la fonction getAll fotsiny) <!-- preferable crude -->   [base-end-point]:  .../api/hotel 
-    [ ] -[CLIENT]     : CRUD                                                                                                             .../api/client
-    [ ] -[RESERVATION]: CRUD     [il_y_a_assignation_client_hotel_ici]                                                                  .../api/reservation
+    [x] -[HOTEL]      : optionnel entre (CRUD  , SCRIPT avec la fonction getAll fotsiny) <!-- preferable crude -->   [base-end-point]:  .../api/hotel 
+    [x] -[CLIENT]     : CRUD                                                                                                             .../api/client
+    [x] -[RESERVATION]: CRUD     [il_y_a_assignation_client_hotel_ici]                                                                  .../api/reservation
 
 
 
