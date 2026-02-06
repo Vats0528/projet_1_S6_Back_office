@@ -3,6 +3,8 @@ package com.projet.controller;
 import com.framework.annotation.RestController;
 import com.framework.annotation.GetMapping;
 import com.framework.annotation.PostMapping;
+import com.framework.annotation.PutMapping;
+import com.framework.annotation.DeleteMapping;
 import com.framework.annotation.PathVariable;
 import com.framework.annotation.RequestBody;
 import com.framework.annotation.CrossOrigin;
@@ -59,6 +61,35 @@ public class HotelController {
         try {
             Hotel created = hotelRepository.save(hotel);
             return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    /**
+     * PUT /api/hotels/{id} - Met à jour un hôtel
+     */
+    @PutMapping("/api/hotels/{id}")
+    public ResponseEntity<Hotel> updateHotel(@PathVariable("id") int id, @RequestBody Hotel hotel) {
+        try {
+            hotel.setIdHotel(id);
+            Hotel updated = hotelRepository.update(hotel);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    /**
+     * DELETE /api/hotels/{id} - Supprime un hôtel
+     */
+    @DeleteMapping("/api/hotels/{id}")
+    public ResponseEntity<Void> deleteHotel(@PathVariable("id") int id) {
+        try {
+            hotelRepository.delete(id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);

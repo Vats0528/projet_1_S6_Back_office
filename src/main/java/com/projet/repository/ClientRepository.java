@@ -68,4 +68,27 @@ public class ClientRepository {
         
         return client;
     }
+
+    public Client update(Client client) throws SQLException {
+        String query = "UPDATE client SET nom_client = ? WHERE id_client = ?";
+        
+        Connection conn = DatabaseConnection.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, client.getNomClient());
+        stmt.setInt(2, client.getIdClient());
+        stmt.executeUpdate();
+        stmt.close();
+        
+        return client;
+    }
+
+    public void delete(int id) throws SQLException {
+        String query = "DELETE FROM client WHERE id_client = ?";
+        
+        Connection conn = DatabaseConnection.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setInt(1, id);
+        stmt.executeUpdate();
+        stmt.close();
+    }
 }

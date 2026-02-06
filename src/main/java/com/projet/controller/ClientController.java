@@ -3,6 +3,8 @@ package com.projet.controller;
 import com.framework.annotation.RestController;
 import com.framework.annotation.GetMapping;
 import com.framework.annotation.PostMapping;
+import com.framework.annotation.PutMapping;
+import com.framework.annotation.DeleteMapping;
 import com.framework.annotation.PathVariable;
 import com.framework.annotation.RequestBody;
 import com.framework.annotation.CrossOrigin;
@@ -59,6 +61,35 @@ public class ClientController {
         try {
             Client created = clientRepository.save(client);
             return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    /**
+     * PUT /api/clients/{id} - Met à jour un client
+     */
+    @PutMapping("/api/clients/{id}")
+    public ResponseEntity<Client> updateClient(@PathVariable("id") int id, @RequestBody Client client) {
+        try {
+            client.setIdClient(id);
+            Client updated = clientRepository.update(client);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    /**
+     * DELETE /api/clients/{id} - Supprime un client
+     */
+    @DeleteMapping("/api/clients/{id}")
+    public ResponseEntity<Void> deleteClient(@PathVariable("id") int id) {
+        try {
+            clientRepository.delete(id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);

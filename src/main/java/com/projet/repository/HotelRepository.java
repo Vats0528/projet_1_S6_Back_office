@@ -68,4 +68,27 @@ public class HotelRepository {
         
         return hotel;
     }
+
+    public Hotel update(Hotel hotel) throws SQLException {
+        String query = "UPDATE hotel SET nom_hotel = ? WHERE id_hotel = ?";
+        
+        Connection conn = DatabaseConnection.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, hotel.getNomHotel());
+        stmt.setInt(2, hotel.getIdHotel());
+        stmt.executeUpdate();
+        stmt.close();
+        
+        return hotel;
+    }
+
+    public void delete(int id) throws SQLException {
+        String query = "DELETE FROM hotel WHERE id_hotel = ?";
+        
+        Connection conn = DatabaseConnection.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setInt(1, id);
+        stmt.executeUpdate();
+        stmt.close();
+    }
 }
