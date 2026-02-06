@@ -23,13 +23,13 @@ A faire -> TL
 A faire -> FO
 [objectif-par-pages]
     -[page_form_reservation]                             [DONEEE_a_recuperer]            [donnee_a_envoier]
-        [ ]-liste deroublate client                         [clients]                       [id_client]
-        [ ]-liste deroulante hotels                         [hotels]                       [id_hotels]
-        [ ]-input champ: nbpassager , dateheure_arrivee
-        [ ]-finaliation test env dev frontoffice  (tester-avec-l'api) -------Branche STAGING
+        [x]-liste deroublate client                         [clients]                       [id_client]
+        [x]-liste deroulante hotels                         [hotels]                       [id_hotels]
+        [x]-input champ: nbpassager , dateheure_arrivee
+        [x]-finaliation test env dev frontoffice  (tester-avec-l'api) -------Branche STAGING
     -[page-liste-reservation]
-        [ ]-liste reservation                             [reservations]                   [TSISY]
-        [ ]-filtre /date  et par /heure  (donc date heure)
+        [x]-liste reservation                             [reservations]                   [TSISY]
+        [x]-filtre /date  et par /heure  (donc date heure)
 
 <!-- ///////////////////////////////////////////////////// -->
 
@@ -44,4 +44,5 @@ A faire -> BO
 
 
 liste todo [ENCOURS]
+
 statu todo [ENCOURS]
