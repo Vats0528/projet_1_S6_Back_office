@@ -1,25 +1,181 @@
-# Projet 1 S6 - API Backend
+# Projet S6 - Système de Réservation Aéroport-Hôtel (Back Office)
 
-API REST pour exposer les données de la base de données PostgreSQL, utilisant le **MVC Framework v1.0**.
+API REST pour la gestion des réservations de transport aéroport vers hôtel.
 
-## Prérequis
+## 🏗️ Architecture
 
-- **Java JDK 17** ou supérieur
-- **Apache Tomcat 10.x** (Jakarta EE 9+)
-- **PostgreSQL 12** ou supérieur
+```
+┌─────────────────┐         ┌─────────────────┐         ┌─────────────────┐
+│   Frontend      │  HTTP   │   Back Office   │  JDBC   │   PostgreSQL    │
+│   (Spring MVC)  │ ──────► │   (MVC Framework)│ ──────► │   Database      │
+│   Port: 8888    │  JSON   │   Port: 8080    │         │   Port: 5432    │
+└─────────────────┘         └─────────────────┘         └─────────────────┘
+```
 
-## Dépendances
+**Note:** Le Frontend ne doit PAS avoir d'accès direct à la base de données. Il consomme uniquement les APIs JSON du Back Office.
+
+---
+
+## 📋 Prérequis
+
+| Composant | Version |
+|-----------|---------|
+| Java JDK | 17+ |
+| Apache Tomcat | 10.x (Jakarta EE) |
+| PostgreSQL | 12+ |
+
+## 📦 Dépendances
 
 | Dépendance | Version | Description |
 |------------|---------|-------------|
 | `mvc-framework` | 1.0.0 | Framework MVC léger style Spring Boot |
 | `postgresql` | 42.7.1 | Driver JDBC PostgreSQL |
 
-Les JARs sont dans le dossier `lib/` et `build/WEB-INF/lib/`.
+---
+
+## 🗄️ Base de Données
+
+### Configuration de connexion
+
+Modifier `src/main/java/com/projet/config/DatabaseConnection.java` :
+
+```java
+private static final String URL = "jdbc:postgresql://localhost:5432/projet_1_s6";
+private static final String USER = "postgres";
+private static final String PASSWORD = "postgres";
+```
+
+### Script d'initialisation
+
+Exécuter le fichier `TABLE_sprint_1_2026_02_06.sql` :
+
+```bash
+psql -U postgres -d projet_1_s6 -f TABLE_sprint_1_2026_02_06.sql
+```
+
+### Schéma de la base
+
+```sql
+hotel (id_hotel, nom_hotel)
+client (id_client, nom_client)
+reservation_client (id_reservation_client, nb_passager, date_heure_arrivee, id_hotel, id_client)
+```
 
 ---
 
-## Guide du Framework MVC
+## 🚀 Déploiement
+
+### Compilation
+
+```bash
+chmod +x build.sh
+./build.sh
+```
+
+### Déploiement sur Tomcat
+
+```bash
+sudo cp projet_1_s6.war /opt/tomcat10/webapps/
+```
+
+### URL de base
+
+```
+http://localhost:8080/projet_1_s6
+```
+
+---
+
+## 📡 API Endpoints
+
+### Hôtels
+
+| Méthode | URL | Description |
+|---------|-----|-------------|
+| `GET` | `/api/hotels` | Liste tous les hôtels |
+| `GET` | `/api/hotels/{id}` | Récupère un hôtel par ID |
+| `POST` | `/api/hotels` | Crée un nouvel hôtel |
+
+**Exemple de réponse GET /api/hotels :**
+```json
+[
+    {"idHotel": 1, "nomHotel": "Hotel Carlton"},
+    {"idHotel": 2, "nomHotel": "Hotel Colbert"},
+    {"idHotel": 3, "nomHotel": "Hotel Ibis"}
+]
+```
+
+### Clients
+
+| Méthode | URL | Description |
+|---------|-----|-------------|
+| `GET` | `/api/clients` | Liste tous les clients |
+| `GET` | `/api/clients/{id}` | Récupère un client par ID |
+| `POST` | `/api/clients` | Crée un nouveau client |
+
+### Réservations
+
+| Méthode | URL | Description |
+|---------|-----|-------------|
+| `GET` | `/api/reservations` | Liste toutes les réservations |
+| `GET` | `/api/reservations/{id}` | Récupère une réservation par ID |
+| `GET` | `/api/reservations/date/{date}` | **Filtre par date** (format: YYYY-MM-DD) |
+| `POST` | `/api/reservations` | Crée une nouvelle réservation |
+| `PUT` | `/api/reservations/{id}` | Met à jour une réservation |
+| `DELETE` | `/api/reservations/{id}` | Supprime une réservation |
+
+**Exemple de réponse GET /api/reservations :**
+```json
+[
+    {
+        "idReservation": 1,
+        "nbPassager": 2,
+        "dateHeureArrivee": "2026-02-06 14:30:00",
+        "idHotel": 1,
+        "idClient": 1,
+        "nomHotel": "Hotel Carlton",
+        "nomClient": "Jean Dupont"
+    }
+]
+```
+
+**Exemple de filtre par date GET /api/reservations/date/2026-02-06 :**
+```json
+[
+    {
+        "idReservation": 1,
+        "nbPassager": 2,
+        "dateHeureArrivee": "2026-02-06 14:30:00",
+        "idHotel": 1,
+        "idClient": 1,
+        "nomHotel": "Hotel Carlton",
+        "nomClient": "Jean Dupont"
+    },
+    {
+        "idReservation": 2,
+        "nbPassager": 4,
+        "dateHeureArrivee": "2026-02-06 18:00:00",
+        "idHotel": 2,
+        "idClient": 2,
+        "nomHotel": "Hotel Colbert",
+        "nomClient": "Marie Martin"
+    }
+]
+```
+
+**Exemple de création POST /api/reservations :**
+```json
+{
+    "idClient": 1,
+    "nbPassager": 3,
+    "dateHeureArrivee": "2026-02-10 15:00:00",
+    "idHotel": 2
+}
+```
+
+---
+
+## 🔧 Guide du Framework MVC
 
 ### Annotations disponibles
 
@@ -27,91 +183,50 @@ Les JARs sont dans le dossier `lib/` et `build/WEB-INF/lib/`.
 
 | Annotation | Description |
 |------------|-------------|
-| `@Controller` | Marque une classe comme contrôleur (retourne des vues) |
-| `@RestController` | Marque une classe comme contrôleur REST (retourne du JSON) |
-| `@CrossOrigin(origins = "...")` | Active CORS pour le contrôleur |
+| `@Controller` | Contrôleur retournant des vues |
+| `@RestController` | Contrôleur REST retournant du JSON |
+| `@CrossOrigin(origins = "*")` | Active CORS |
 
 #### Mappings HTTP
 
 | Annotation | Description |
 |------------|-------------|
-| `@GetMapping("/path")` | Gère les requêtes GET |
-| `@PostMapping("/path")` | Gère les requêtes POST |
-| `@PutMapping("/path")` | Gère les requêtes PUT |
-| `@DeleteMapping("/path")` | Gère les requêtes DELETE |
-| `@RequestMapping("/path")` | Mapping générique |
+| `@GetMapping("/path")` | Requêtes GET |
+| `@PostMapping("/path")` | Requêtes POST |
+| `@PutMapping("/path")` | Requêtes PUT |
+| `@DeleteMapping("/path")` | Requêtes DELETE |
 
 #### Paramètres
 
 | Annotation | Description |
 |------------|-------------|
-| `@PathVariable("name")` | Extrait une variable du chemin URL |
-| `@RequestParam("name")` | Extrait un paramètre de requête |
-| `@RequestBody` | Désérialise le corps JSON en objet |
-| `@RequestHeader("name")` | Extrait un header HTTP |
-| `@Session` | Accède à la session utilisateur |
-
-#### Sécurité
-
-| Annotation | Description |
-|------------|-------------|
-| `@Authenticated` | Requiert une authentification |
-| `@RequiresRole("role")` | Requiert un rôle spécifique |
-| `@AllowAnonymous` | Autorise l'accès sans authentification |
-
-#### Réponses
-
-| Annotation | Description |
-|------------|-------------|
-| `@ResponseStatus(HttpStatus.OK)` | Définit le code HTTP de réponse |
+| `@PathVariable("name")` | Variable du chemin URL |
+| `@RequestParam("name")` | Paramètre de requête |
+| `@RequestBody` | Corps JSON désérialisé |
 
 ### Classes utilitaires
 
-#### ResponseEntity
 ```java
-// Réponse OK avec données
+// Réponse OK
 return ResponseEntity.ok(data);
 
-// Réponse avec statut personnalisé
+// Réponse avec statut
 return ResponseEntity.status(HttpStatus.CREATED).body(data);
-
-// Réponse sans contenu
-return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
 ```
 
-#### HttpStatus
-```java
-HttpStatus.OK                    // 200
-HttpStatus.CREATED               // 201
-HttpStatus.NO_CONTENT            // 204
-HttpStatus.BAD_REQUEST           // 400
-HttpStatus.UNAUTHORIZED          // 401
-HttpStatus.FORBIDDEN             // 403
-HttpStatus.NOT_FOUND             // 404
-HttpStatus.INTERNAL_SERVER_ERROR // 500
-```
-
-### Exemple de contrôleur complet
+### Exemple de contrôleur
 
 ```java
-package com.projet.controller;
-
-import com.framework.annotation.*;
-import com.framework.util.ResponseEntity;
-import com.framework.util.HttpStatus;
-
 @RestController
 @CrossOrigin(origins = "*")
 public class ExempleController {
 
-    // GET /api/items
     @GetMapping("/api/items")
     public ResponseEntity<List<Item>> getAll() {
-        List<Item> items = repository.findAll();
-        return ResponseEntity.ok(items);
+        return ResponseEntity.ok(repository.findAll());
     }
 
-    // GET /api/items/5
     @GetMapping("/api/items/{id}")
     public ResponseEntity<Item> getById(@PathVariable("id") int id) {
         Item item = repository.findById(id);
@@ -121,169 +236,93 @@ public class ExempleController {
         return ResponseEntity.ok(item);
     }
 
-    // POST /api/items
     @PostMapping("/api/items")
     public ResponseEntity<Item> create(@RequestBody Item item) {
-        Item created = repository.save(item);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
-    }
-
-    // PUT /api/items/5
-    @PutMapping("/api/items/{id}")
-    public ResponseEntity<Item> update(
-            @PathVariable("id") int id,
-            @RequestBody Item item) {
-        item.setId(id);
-        Item updated = repository.update(item);
-        return ResponseEntity.ok(updated);
-    }
-
-    // DELETE /api/items/5
-    @DeleteMapping("/api/items/{id}")
-    public ResponseEntity<Void> delete(@PathVariable("id") int id) {
-        repository.delete(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
-    }
-
-    // GET /api/items/search?name=test
-    @GetMapping("/api/items/search")
-    public ResponseEntity<List<Item>> search(@RequestParam("name") String name) {
-        List<Item> items = repository.findByName(name);
-        return ResponseEntity.ok(items);
+        return ResponseEntity.status(HttpStatus.CREATED).body(repository.save(item));
     }
 }
 ```
 
 ---
 
-## Configuration du projet
-
-```sql
-CREATE DATABASE projet_1_s6;
-\c projet_1_s6;
-
-CREATE TABLE test(
-    id INT PRIMARY KEY,
-    text TEXT NOT NULL,
-    date DATE NOT NULL
-);
-
-INSERT INTO test VALUES (1, 'Hello world', '2026-01-30');
-```
-
-## Configuration de la connexion
-
-Modifier le fichier `src/main/java/com/projet/config/DatabaseConnection.java` si nécessaire :
-
-```java
-private static final String URL = "jdbc:postgresql://localhost:5432/projet_1_s6";
-private static final String USER = "postgres";
-private static final String PASSWORD = "postgres";
-```
-
-## Compilation et Déploiement
-
-### Option 1 : Script de build (Linux/Mac)
-
-```bash
-chmod +x build.sh
-./build.sh
-```
-
-### Option 2 : Compilation manuelle
-
-```bash
-# Créer les répertoires
-mkdir -p build/WEB-INF/classes
-mkdir -p build/WEB-INF/lib
-
-# Copier les fichiers
-cp -r src/main/webapp/* build/
-cp lib/*.jar build/WEB-INF/lib/
-
-# Compiler
-javac -cp "lib/*:build/WEB-INF/lib/*" -d build/WEB-INF/classes $(find src/main/java -name "*.java")
-
-# Créer le WAR
-cd build && jar -cvf ../projet_1_s6.war .
-```
-
-### Déploiement sur Tomcat
-
-1. Copiez `projet_1_s6.war` dans `$TOMCAT_HOME/webapps/`
-2. Démarrez Tomcat
-3. L'API sera accessible à `http://localhost:8080/projet_1_s6/api/tests`
-
-## Endpoints API
-
-| Méthode | URL | Description |
-|---------|-----|-------------|
-| GET | `/api/tests` | Liste tous les enregistrements |
-| GET | `/api/tests/{id}` | Récupère un enregistrement par ID |
-
-## Exemple de réponse
-
-### GET /api/tests
-
-```json
-[
-    {
-        "id": 1,
-        "text": "Hello world",
-        "date": "2026-01-30"
-    }
-]
-```
-
-### GET /api/tests/1
-
-```json
-{
-    "id": 1,
-    "text": "Hello world",
-    "date": "2026-01-30"
-}
-```
-
-## Utilisation depuis le Frontend
-
-```javascript
-// Exemple avec fetch
-fetch('http://localhost:8080/projet_1_s6/api/tests')
-    .then(response => response.json())
-    .then(data => console.log(data));
-
-// Exemple avec axios
-axios.get('http://localhost:8080/projet_1_s6/api/tests')
-    .then(response => console.log(response.data));
-```
-
-## Structure du projet
+## 📁 Structure du projet
 
 ```
 projet_1_S6_Back_office/
 ├── lib/
 │   └── mvc-framework-1.0.0.jar
-├── src/
-│   └── main/
-│       ├── java/
-│       │   └── com/
-│       │       └── projet/
-│       │           ├── config/
-│       │           │   └── DatabaseConnection.java
-│       │           ├── controller/
-│       │           │   └── TestController.java
-│       │           ├── model/
-│       │           │   └── Test.java
-│       │           └── repository/
-│       │               └── TestRepository.java
-│       └── webapp/
-│           └── WEB-INF/
-│               └── web.xml
+├── src/main/java/com/projet/
+│   ├── config/
+│   │   └── DatabaseConnection.java
+│   ├── controller/
+│   │   ├── HotelController.java
+│   │   ├── ClientController.java
+│   │   └── ReservationController.java
+│   ├── model/
+│   │   ├── Hotel.java
+│   │   ├── Client.java
+│   │   └── Reservation.java
+│   └── repository/
+│       ├── HotelRepository.java
+│       ├── ClientRepository.java
+│       └── ReservationRepository.java
+├── src/main/webapp/WEB-INF/
+│   └── web.xml
+├── TABLE_sprint_1_2026_02_06.sql
 ├── build.sh
 └── README.md
 ```
 
-## CORS
+---
 
-L'API est configurée pour accepter les requêtes de n'importe quelle origine (`@CrossOrigin(origins = "*")`). En production, modifiez cette configuration pour n'accepter que les origines autorisées.
+## 🧪 Tests avec cURL
+
+```bash
+# Liste des hôtels
+curl http://localhost:8080/projet_1_s6/api/hotels
+
+# Liste des réservations
+curl http://localhost:8080/projet_1_s6/api/reservations
+
+# Filtre par date
+curl http://localhost:8080/projet_1_s6/api/reservations/date/2026-02-06
+
+# Créer une réservation
+curl -X POST http://localhost:8080/projet_1_s6/api/reservations \
+  -H "Content-Type: application/json" \
+  -d '{"idClient":1,"nbPassager":2,"dateHeureArrivee":"2026-02-10 14:00:00","idHotel":1}'
+```
+
+---
+
+## 📱 Utilisation depuis le Frontend (Spring MVC)
+
+```java
+// Dans le Frontend, appeler les APIs sans accès direct à la base
+RestTemplate restTemplate = new RestTemplate();
+
+// Récupérer les hôtels
+Hotel[] hotels = restTemplate.getForObject(
+    "http://localhost:8080/projet_1_s6/api/hotels", 
+    Hotel[].class
+);
+
+// Récupérer les réservations filtrées par date
+Reservation[] reservations = restTemplate.getForObject(
+    "http://localhost:8080/projet_1_s6/api/reservations/date/2026-02-06", 
+    Reservation[].class
+);
+
+// Créer une réservation
+Reservation newReservation = new Reservation();
+newReservation.setIdClient(1);
+newReservation.setNbPassager(3);
+newReservation.setDateHeureArrivee("2026-02-10 15:00:00");
+newReservation.setIdHotel(2);
+
+Reservation created = restTemplate.postForObject(
+    "http://localhost:8080/projet_1_s6/api/reservations",
+    newReservation,
+    Reservation.class
+);
+```
