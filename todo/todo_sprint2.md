@@ -40,7 +40,7 @@ Sans token valide, impossible d’accéder aux données des endpoints.
 [Objectif-par-endpoint]
 
 ### Base de données
-- [ ] création table token
+- [x] création table token
   - id_token
   - token_code (alphanumérique, unique)
   - status (ACTIVE / REVOKED)
