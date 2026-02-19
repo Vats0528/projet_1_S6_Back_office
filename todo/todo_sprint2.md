@@ -19,13 +19,13 @@ Sans token valide, impossible d’accéder aux données des endpoints.
 ---
 
 ## A faire -> TL  
-[Objectif-par-branche] [SprintX/Feat] (neutre)
+[Objectif-par-branche] [Sprint2/Feat] (neutre)
 
 - [x] todo et distribution des tâches
 - [ ] conception du flow global token (generate → store → validate)
 - [ ] définition du format token (longueur, charset, unicité)
 - [ ] faire et commit structure BDD  
-  - fichier : TABLE_token_sprintX.sql  
+  - fichier : TABLE_token_sprint2.sql  
   - type : [feat]
 - [ ] commit données de base de test  
   - fichier : init-token.sql
@@ -45,7 +45,7 @@ Sans token valide, impossible d’accéder aux données des endpoints.
   - token_code (alphanumérique, unique)
   - status (ACTIVE / REVOKED)
   - created_at
-  - expired_at (optionnel)
+  - expired_at 
 
 ---
 
@@ -77,7 +77,7 @@ Sans token valide, impossible d’accéder aux données des endpoints.
 
 ---
 
-## A faire -> FO  
+## A faire -> FO  (Optionnel mais pour le visuel)
 [Objectif-par-pages]
 
 - [ ] adaptation des appels API avec token dans l’URL
@@ -103,7 +103,7 @@ Sans token valide, impossible d’accéder aux données des endpoints.
 ## STATUS
 
 liste todo : [EN_ATTENTE]  
-avancement : 0 / X  
+avancement : 0 / 100  
 
 étape actuelle du workflow :
 - conception
