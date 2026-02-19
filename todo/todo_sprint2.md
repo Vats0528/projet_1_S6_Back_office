@@ -1,4 +1,4 @@
-# Feature : Token-based access simple (Sprint X)
+# Feature : Token-based access simple (Sprint 2)
 
 TL : ETU003244 - Kiady
 BO : ETU002647 - Naly
