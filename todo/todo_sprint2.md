@@ -10,7 +10,7 @@ FO : ETU003330 - Vatosoa
 
 Créer une fonction de génération de token, une table token, et une authentification par token avant l’accès aux endpoints via l’URL.
 
-Format URL :
+Format URL (exemple) :
 http://localhost/main/{token_code}/endpoint
 
 Le token est alphanumérique.  
