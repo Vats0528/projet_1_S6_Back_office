@@ -22,7 +22,7 @@ public class Lieu {
     public String getCode() {
         return code ; 
     }
-    public String getlibelle(){
+    public String getLibelle(){
         return libelle ; 
     }
 
@@ -31,10 +31,10 @@ public class Lieu {
         this.idLieu = idLieu ;
     }
 
-    public void setIdCode(String code){
+    public void setCode(String code){
         this.code = code ; 
     }
-    public void setLiebelle(String libelle){
+    public void setLibelle(String libelle){
         this.libelle = libelle ; 
     }
 
