@@ -8,3 +8,10 @@ CREATE TABLE token(
    date_expiration TIMESTAMP,
    PRIMARY KEY(id_token)
 );
+CREATE TABLE hotel(
+   id_hotel SERIAL,
+   nom_hotel VARCHAR(50) ,
+   id_lieu INTEGER NOT NULL,
+   PRIMARY KEY(id_hotel),
+   FOREIGN KEY(id_lieu) REFERENCES lieu(id_lieu)
+);
