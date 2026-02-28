@@ -44,36 +44,34 @@ Sans token valide, impossible d’accéder aux données des endpoints.
   - id_token
   - token_code (alphanumérique, unique)
   - status (ACTIVE / REVOKED)
-  - created_at
-  - expired_at 
+  - date_creation
+  - date_expiration
 
 ---
 
 ### Token
-- [ ] fonction de génération de token alphanumérique
-- [ ] vérification unicité du token
-- [ ] endpoint génération token  
+- [x] fonction de génération de token alphanumérique
+- [x] vérification unicité du token
+- [x] endpoint génération token  
   POST /api/token/generate
-- [ ] service de validation token (interne)
+- [x] service de validation token (interne)
 
 ---
 
 ### Sécurisation des endpoints
-- [ ] récupération du token depuis l’URL  
+- [x] récupération du token depuis l’URL  
   /main/{token_code}/endpoint
-- [ ] vérification du token avant l’exécution du controller
-- [ ] gestion des erreurs :
+- [x] vérification du token avant l’exécution du controller (uniquement reservation pour l instant )
+- [x] gestion des erreurs :
   - token absent
   - token invalide
   - token révoqué
-- [ ] réponse HTTP 401 / 403 sans exposition de données
+- [x] réponse HTTP 401 / 403 sans exposition de données
 
 ---
 
 ### Endpoints protégés
-- [ ] /api/client
-- [ ] /api/hotel
-- [ ] /api/reservation
+- [x] /api/reservation
 
 ---
 
