@@ -1,6 +1,8 @@
 alter table hotel rename to lieu;
-alter table lieu  rename column nom to libelle;
+alter table lieu  rename column nom_hotel to libelle;
 alter table lieu rename column id_hotel to id_lieu;
+ALTER TABLE lieu
+ADD COLUMN code VARCHAR(50);
 
 CREATE TABLE token(
    id_token SERIAL,
