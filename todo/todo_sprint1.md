@@ -14,12 +14,12 @@ A faire -> TL
             -[x] Final merge pour les feature
         [staging]   (repo_BO)
             [x]- simulation data
-            [ ]- cheery pick -> release-06-02-2026(from main) /merge main
+            [x]- cheery pick -> release-06-02-2026(from main) /merge main
         [staging]   (repo_FO)
-            [ ]- simulation data (avec api from BO y compris)
-            [ ]- cheery pick -> release-06-02-2026(from main) /merge main
+            [x]- simulation data (avec api from BO y compris)
+            [x]- cheery pick -> release-06-02-2026(from main) /merge main
         [Release] (neutre)
-            [ ]-
+            [x]-
 
 <!-- ///////////////////////////////////////////////////// -->
 
@@ -48,11 +48,8 @@ A faire -> BO
 STATUS :
 
 liste todo                 [x]
-statu todo(avancement) [ENCOURS]    : 6/10
-etape actuelle du workflow sprint 1 : Env Dev , Branche feature  [BO / FO]
+statu todo(avancement) [ENCOURS]    : 10/10
+etape actuelle du workflow sprint 1 : End  [BO / FO]
 
 
-liste todo [ENCOURS]
-
-statu todo [ENCOURS]
 
