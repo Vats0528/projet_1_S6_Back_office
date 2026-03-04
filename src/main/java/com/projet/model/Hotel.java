@@ -3,12 +3,14 @@ package com.projet.model;
 public class Hotel {
     private int idHotel;
     private String nomHotel;
+    private int idLieu;
 
     public Hotel() {}
 
-    public Hotel(int idHotel, String nomHotel) {
+    public Hotel(int idHotel, String nomHotel , int idLieu) {
         this.idHotel = idHotel;
         this.nomHotel = nomHotel;
+        this.idLieu = idLieu;
     }
 
     // Getters
@@ -20,6 +22,10 @@ public class Hotel {
         return nomHotel;
     }
 
+    public int getIdLieu() {
+        return idLieu;
+    }
+
     // Setters
     public void setIdHotel(int idHotel) {
         this.idHotel = idHotel;
@@ -27,5 +33,9 @@ public class Hotel {
 
     public void setNomHotel(String nomHotel) {
         this.nomHotel = nomHotel;
+    }
+    
+    public void setIdLieu(int idLieu) {
+        this.idLieu = idLieu ;
     }
 }
