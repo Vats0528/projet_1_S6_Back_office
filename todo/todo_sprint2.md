@@ -22,17 +22,17 @@ Sans token valide, impossible d’accéder aux données des endpoints.
 [Objectif-par-branche] [Sprint2/Feat] (neutre)
 
 - [x] todo et distribution des tâches
-- [ ] conception du flow global token (generate → store → validate)
-- [ ] définition du format token (longueur, charset, unicité)
-- [ ] faire et commit structure BDD  
+- [x] conception du flow global token (generate → store → validate)
+- [x] définition du format token (longueur, charset, unicité)
+- [x] faire et commit structure BDD  
   - fichier : TABLE_token_sprint2.sql  
   - type : [feat]
-- [ ] commit données de base de test  
+- [x] commit données de base de test  
   - fichier : init-token.sql
-- [ ] final merge feature -> staging (repo_BO)
-- [ ] simulation data (token valides / invalides)
-- [ ] cherry-pick -> release-XX-XX-2026 (from main)
-- [ ] merge main -> staging / release (neutre)
+- [x] final merge feature -> staging (repo_BO)
+- [x] simulation data (token valides / invalides)
+- [x] cherry-pick -> release-XX-XX-2026 (from main)
+- [x] merge main -> staging / release (neutre)
 
 ---
 
@@ -78,10 +78,10 @@ Sans token valide, impossible d’accéder aux données des endpoints.
 ## A faire -> FO  (Optionnel mais pour le visuel)
 [Objectif-par-pages]
 
-- [ ] adaptation des appels API avec token dans l’URL
-- [ ] gestion des erreurs token côté UI
-- [ ] message utilisateur : accès refusé
-- [ ] tests avec :
+- [x] adaptation des appels API avec token dans l’URL
+- [x] gestion des erreurs token côté UI
+- [x] message utilisateur : accès refusé
+- [x] tests avec :
   - token valide
   - token invalide
   - token absent
@@ -100,8 +100,8 @@ Sans token valide, impossible d’accéder aux données des endpoints.
 
 ## STATUS
 
-liste todo : [EN_ATTENTE]  
-avancement : 0 / 100  
+liste todo : [FINISH]  
+avancement : 10 / 10  
 
 étape actuelle du workflow :
 - conception
@@ -112,10 +112,10 @@ avancement : 0 / 100
 
 ## DONE (critères de validation)
 
-- [ ] token généré automatiquement
-- [ ] token stocké en base
-- [ ] endpoint inaccessible sans token
-- [ ] endpoint inaccessible avec token invalide
-- [ ] endpoint accessible avec token valide
-- [ ] aucune donnée exposée sans authentification token
+- [x] token généré automatiquement
+- [x] token stocké en base
+- [x] endpoint inaccessible sans token
+- [x] endpoint inaccessible avec token invalide
+- [x] endpoint accessible avec token valide
+- [x] aucune donnée exposée sans authentification token
     
