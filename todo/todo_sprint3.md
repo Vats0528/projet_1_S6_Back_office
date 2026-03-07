@@ -2,7 +2,7 @@ Feature  : Planification & Assignation de véhicule
 (sprint3)
 TL :  ETU003330         -Vatosoa        
 FO :  ETU002647         -Nallitiana
-BO :           
+BO :  ETU003244         -Kiady         
 
 <!-- ///////////////////////////////////////////////////// -->
 A faire -> TL
