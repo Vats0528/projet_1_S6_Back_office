@@ -71,7 +71,7 @@ public class ReservationController {
 
     /**
      * POST /api/reservations - Crée une nouvelle réservation
-     * Body: { "idClient": 1, "nbPassager": 3, "dateHeureArrivee": "2026-02-06 14:30:00", "idHotel": 1 }
+     * Body: { "idClient": 1, "nbPassager": 3, "dateHeureArrivee": "2026-02-06 14:30:00", "idLieu": 1 }
      */
     @PostMapping("/api/reservations")
     public ResponseEntity<Reservation> createReservation(@RequestBody Reservation reservation) {

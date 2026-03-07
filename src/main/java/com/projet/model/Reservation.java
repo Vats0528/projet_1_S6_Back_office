@@ -6,21 +6,21 @@ public class Reservation {
     private int idReservation;
     private int nbPassager;
     private String dateHeureArrivee;
-    private int idHotel;
+    private int idLieu;
     private int idClient;
     
     // Pour les jointures
-    private String nomHotel;
+    private String libelleLieu;
     private String nomClient;
 
     public Reservation() {}
 
     public Reservation(int idReservation, int nbPassager, String dateHeureArrivee, 
-                       int idHotel, int idClient) {
+                       int idLieu, int idClient) {
         this.idReservation = idReservation;
         this.nbPassager = nbPassager;
         this.dateHeureArrivee = dateHeureArrivee;
-        this.idHotel = idHotel;
+        this.idLieu = idLieu;
         this.idClient = idClient;
     }
 
@@ -37,16 +37,16 @@ public class Reservation {
         return dateHeureArrivee;
     }
 
-    public int getIdHotel() {
-        return idHotel;
+    public int getIdLieu() {
+        return idLieu;
     }
 
     public int getIdClient() {
         return idClient;
     }
 
-    public String getNomHotel() {
-        return nomHotel;
+    public String getLibelleLieu() {
+        return libelleLieu;
     }
 
     public String getNomClient() {
@@ -70,16 +70,16 @@ public class Reservation {
         this.dateHeureArrivee = dateHeureArrivee != null ? dateHeureArrivee.toString() : null;
     }
 
-    public void setIdHotel(int idHotel) {
-        this.idHotel = idHotel;
+    public void setIdLieu(int idLieu) {
+        this.idLieu = idLieu;
     }
 
     public void setIdClient(int idClient) {
         this.idClient = idClient;
     }
 
-    public void setNomHotel(String nomHotel) {
-        this.nomHotel = nomHotel;
+    public void setLibelleLieu(String libelleLieu) {
+        this.libelleLieu = libelleLieu;
     }
 
     public void setNomClient(String nomClient) {
