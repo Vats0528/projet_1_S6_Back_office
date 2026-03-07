@@ -71,26 +71,26 @@ A faire -> FO
 
 A faire -> BO
 [objectif-par-end-point]
-    [ ] -[LIEU]              : CRUD                          .../api/lieu
-[ ] -[DISTANCE]          : CRUD (entre deux lieux)        .../api/distance
-[ ] -[CARBURANT]         : CRUD                          .../api/carburant
-[ ] -[VEHICULE]          : CRUD                          .../api/vehicule
-[ ] -[PARAM_VEHICULE]    : CRUD (VM, TA)                 .../api/param-vehicule
-[ ] -[RESERVATION]       : CRUD                          .../api/reservation
+    [x] -[LIEU]              : CRUD                          .../api/lieu
+[x] -[DISTANCE]          : CRUD (entre deux lieux)        .../api/distance
+[x] -[CARBURANT]         : CRUD                          .../api/carburant
+[x] -[VEHICULE]          : CRUD                          .../api/vehicule
+[x] -[PARAM_VEHICULE]    : CRUD (VM, TA)                 .../api/param-vehicule
+[x] -[RESERVATION]       : CRUD                          .../api/reservation
 
-[ ] -[ASSIGNATION]       : Logique métier                .../api/assignation
-        [ ] - regrouper les réservations dont date_heure_arrivee est dans ± TA (30min)
+[x] -[ASSIGNATION]       : Logique métier                .../api/assignation
+        [x] - regrouper les réservations dont date_heure_arrivee est dans ± TA (30min)
               (peu importe le lieu destination)
-        [ ] - filtrer véhicules disponibles : nb_place >= total nb_passager du groupe
-        [ ] - choisir le véhicule optimal (moins de trajets déjà assignés)
-        [ ] - ordonner les arrêts par distance croissante depuis l'aéroport
+        [x] - filtrer véhicules disponibles : nb_place >= total nb_passager du groupe
+        [x] - choisir le véhicule optimal (moins de trajets déjà assignés)
+        [x] - ordonner les arrêts par distance croissante depuis l'aéroport
               → construire details_trajet avec succession (1, 2, 3...)
-        [ ] - calculer date_heure_depart depuis l'aéroport
-        [ ] - calculer date_heure_retour :
+        [x] - calculer date_heure_depart depuis l'aéroport
+        [x] - calculer date_heure_retour :
                 somme des (distance/VM) de chaque étape
                 + temps_attente à chaque arrêt
                 + trajet retour vers aéroport (dernier lieu → aéroport)
-        [ ] - créer reservation_vehicule + details_reservation_client + details_trajet
+        [x] - créer reservation_vehicule + details_reservation_client + details_trajet
 
 *Rappel logique de calcul date_heure_retour
     Pour chaque étape i (triée par distance croissante) :
@@ -125,4 +125,4 @@ date_heure_retour = date_heure_depart
 
 Status:
     En cours...
-    
+
