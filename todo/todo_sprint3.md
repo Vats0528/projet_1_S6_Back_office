@@ -124,4 +124,5 @@ date_heure_retour = date_heure_depart
         details_trajet — les étapes du trajet d'une réservation véhicule, avec un ordre (succession)
 
 Status:
-    en attente de sprint 2
+    En cours...
+    
