@@ -63,10 +63,10 @@ public class AssignationRepository {
         }
         
         List<Reservation> groupeActuel = new ArrayList<>();
-        Timestamp heureReference = reservations.get(0).getDateHeureArrivee();
+        Timestamp heureReference = Timestamp.valueOf(reservations.get(0).getDateHeureArrivee());
         
         for (Reservation reservation : reservations) {
-            Timestamp heureArrivee = reservation.getDateHeureArrivee();
+            Timestamp heureArrivee = Timestamp.valueOf(reservation.getDateHeureArrivee());
             
             // Vérifier si la réservation est dans le créneau ± tempsAttente
             long diffMinutes = Math.abs(heureArrivee.getTime() - heureReference.getTime()) / (1000 * 60);

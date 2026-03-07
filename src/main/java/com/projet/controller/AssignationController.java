@@ -101,7 +101,7 @@ public class AssignationController {
                 List<Reservation> reservationsOrdonnees = assignationRepository.ordonnerParDistanceCroissante(groupe, idAeroport);
                 
                 // Calculer la date/heure de départ (heure d'arrivée du premier client)
-                Timestamp dateHeureDepart = reservationsOrdonnees.get(0).getDateHeureArrivee();
+                Timestamp dateHeureDepart = Timestamp.valueOf(reservationsOrdonnees.get(0).getDateHeureArrivee());
                 
                 // Calculer la date/heure de retour
                 Timestamp dateHeureRetour = assignationRepository.calculerDateHeureRetour(
