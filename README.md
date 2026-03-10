@@ -8,7 +8,7 @@ API REST pour la gestion des réservations de transport aéroport vers hôtel.
 ┌─────────────────┐         ┌─────────────────┐         ┌─────────────────┐
 │   Frontend      │  HTTP   │   Back Office   │  JDBC   │   PostgreSQL    │
 │   (Spring MVC)  │ ──────► │   (MVC Framework)│ ──────► │   Database      │
-│   Port: 8888    │  JSON   │   Port: 8080    │         │   Port: 5432    │
+│   Port: 8888    │  JSON   │   Port: 8080    │         │   Port: 5433    │
 └─────────────────┘         └─────────────────┘         └─────────────────┘
 ```
 
@@ -40,7 +40,7 @@ API REST pour la gestion des réservations de transport aéroport vers hôtel.
 Modifier `src/main/java/com/projet/config/DatabaseConnection.java` :
 
 ```java
-private static final String URL = "jdbc:postgresql://localhost:5432/projet_1_s6";
+private static final String URL = "jdbc:postgresql://localhost:5433/projet_1_s6";
 private static final String USER = "postgres";
 private static final String PASSWORD = "postgres";
 ```

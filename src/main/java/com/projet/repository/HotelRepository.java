@@ -11,7 +11,7 @@ public class HotelRepository {
 
     public List<Hotel> findAll() throws SQLException {
         List<Hotel> hotels = new ArrayList<>();
-        String query = "SELECT id_hotel, nom_hotel FROM hotel ORDER BY nom_hotel";
+        String query = "SELECT id, libelle FROM hotel ORDER BY libelle";
         
         Connection conn = DatabaseConnection.getConnection();
         PreparedStatement stmt = conn.prepareStatement(query);
@@ -19,8 +19,8 @@ public class HotelRepository {
         
         while (rs.next()) {
             Hotel hotel = new Hotel();
-            hotel.setIdHotel(rs.getInt("id_hotel"));
-            hotel.setNomHotel(rs.getString("nom_hotel"));
+            hotel.setIdHotel(rs.getInt("id"));
+            hotel.setNomHotel(rs.getString("libelle"));
             hotels.add(hotel);
         }
         
@@ -31,7 +31,7 @@ public class HotelRepository {
     }
 
     public Hotel findById(int id) throws SQLException {
-        String query = "SELECT id_hotel, nom_hotel FROM hotel WHERE id_hotel = ?";
+        String query = "SELECT id, libelle FROM hotel WHERE id = ?";
         
         Connection conn = DatabaseConnection.getConnection();
         PreparedStatement stmt = conn.prepareStatement(query);
@@ -41,8 +41,8 @@ public class HotelRepository {
         Hotel hotel = null;
         if (rs.next()) {
             hotel = new Hotel();
-            hotel.setIdHotel(rs.getInt("id_hotel"));
-            hotel.setNomHotel(rs.getString("nom_hotel"));
+            hotel.setIdHotel(rs.getInt("id"));
+            hotel.setNomHotel(rs.getString("libelle"));
         }
         
         rs.close();
@@ -52,7 +52,7 @@ public class HotelRepository {
     }
 
     public Hotel save(Hotel hotel) throws SQLException {
-        String query = "INSERT INTO hotel (nom_hotel) VALUES (?) RETURNING id_hotel";
+        String query = "INSERT INTO hotel (libelle) VALUES (?) RETURNING id";
         
         Connection conn = DatabaseConnection.getConnection();
         PreparedStatement stmt = conn.prepareStatement(query);
@@ -60,7 +60,7 @@ public class HotelRepository {
         ResultSet rs = stmt.executeQuery();
         
         if (rs.next()) {
-            hotel.setIdHotel(rs.getInt("id_hotel"));
+            hotel.setIdHotel(rs.getInt("id"));
         }
         
         rs.close();
@@ -70,7 +70,7 @@ public class HotelRepository {
     }
 
     public Hotel update(Hotel hotel) throws SQLException {
-        String query = "UPDATE hotel SET nom_hotel = ? WHERE id_hotel = ?";
+        String query = "UPDATE hotel SET libelle = ? WHERE id = ?";
         
         Connection conn = DatabaseConnection.getConnection();
         PreparedStatement stmt = conn.prepareStatement(query);
@@ -83,7 +83,7 @@ public class HotelRepository {
     }
 
     public void delete(int id) throws SQLException {
-        String query = "DELETE FROM hotel WHERE id_hotel = ?";
+        String query = "DELETE FROM hotel WHERE id = ?";
         
         Connection conn = DatabaseConnection.getConnection();
         PreparedStatement stmt = conn.prepareStatement(query);
