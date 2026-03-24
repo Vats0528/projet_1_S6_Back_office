@@ -8,6 +8,7 @@ import com.projet.model.Vehicule;
 import com.projet.repository.VehiculeRepository;
 
 import java.util.List;
+import java.sql.Timestamp;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -80,4 +81,49 @@ public class VehiculeController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+
+    @GetMapping("/api/vehicule/disponibles")
+    public ResponseEntity<List<Vehicule>> getDisponiblesAvecMarge(
+        @RequestParam("debut") String debut,
+        @RequestParam("fin") String fin
+        ) {
+            try {
+                // 1. Préparation des dates
+                Timestamp t1 = Timestamp.valueOf(debut.replace("T", " "));
+                Timestamp t2 = Timestamp.valueOf(fin.replace("T", " "));
+
+                // 2. Récupération du paramètre TA (Temps d'Attente) en base
+                int ta = vehiculeRepository.getTempsAttente();
+
+                // 3. Recherche avec la logique de marge
+                List<Vehicule> list = vehiculeRepository.findAvailableWithTA(t1, t2, ta);
+                
+                return ResponseEntity.ok(list);
+            } catch (IllegalArgumentException e) {
+                // Erreur si le format de date est invalide
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            }
+    }
+    
+    @GetMapping("/api/vehicule/disponibles/strict")
+    public ResponseEntity<List<Vehicule>> getDisponiblesStrict(
+        @RequestParam("debut") String debut,
+        @RequestParam("fin") String fin
+    ) {
+        try {
+            // Transformation des strings en Timestamp
+            Timestamp t1 = Timestamp.valueOf(debut.replace("T", " "));
+            Timestamp t2 = Timestamp.valueOf(fin.replace("T", " "));
+
+            List<Vehicule> list = vehiculeRepository.findAvailableVehicules(t1, t2);
+            return ResponseEntity.ok(list);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+    
 }

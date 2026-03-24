@@ -5,7 +5,9 @@ import com.projet.model.Vehicule;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class VehiculeRepository {
 
@@ -164,4 +166,118 @@ public class VehiculeRepository {
         }
         return null;
     }
+    public List<Vehicule> findAvailableVehicules(Timestamp debutBesoin, Timestamp finBesoin) throws SQLException {
+        List<Vehicule> libres = new ArrayList<>();
+        String query = """
+            SELECT v.*, c.nom_carburant 
+            FROM vehicule v
+            JOIN carburant c ON v.id_carburant = c.id_carburant
+            WHERE v.id_vehicule NOT IN (
+                SELECT rv.id_vehicule 
+                FROM reservation_vehicule rv
+                WHERE (rv.date_heure_depart < ? AND rv.date_heure_retour > ?)
+            )
+            """;
+
+        try (Connection conn = DatabaseConnection.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+            
+            stmt.setTimestamp(1, finBesoin);   // Temps 2
+            stmt.setTimestamp(2, debutBesoin); // Temps 1
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    libres.add(mapResultSet(rs));
+                }
+            }
+        }
+        return libres;
+    }
+    
+    public List<Vehicule> findAvailableWithTA(Timestamp debutBesoin, Timestamp finBesoin, int taMinutes) throws SQLException {
+        List<Vehicule> libres = new ArrayList<>();
+        
+        // On utilise INTERVAL pour décaler le début du besoin de 'taMinutes'
+        String query = """
+            SELECT v.*, c.nom_carburant 
+            FROM vehicule v
+            JOIN carburant c ON v.id_carburant = c.id_carburant
+            WHERE v.id_vehicule NOT IN (
+                SELECT rv.id_vehicule 
+                FROM reservation_vehicule rv
+                WHERE rv.date_heure_depart < ? 
+                AND rv.date_heure_retour > (? + CAST(? || ' minutes' AS INTERVAL))
+            )
+            """;
+
+        try (Connection conn = DatabaseConnection.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+            
+            stmt.setTimestamp(1, finBesoin);   // Temps 2
+            stmt.setTimestamp(2, debutBesoin); // Temps 1
+            stmt.setInt(3, taMinutes);         // La marge TA
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    libres.add(mapResultSet(rs));
+                }
+            }
+        }
+        return libres;
+    }
+
+    /**
+     * Récupère le Temps d'Attente (TA) défini dans les paramètres.
+     * @return le nombre de minutes (int)
+     */
+    public int getTempsAttente() throws SQLException {
+        int ta = 0;
+        String query = "SELECT ta_s FROM param_vehicule LIMIT 1";
+
+        try (Connection conn = com.projet.config.DatabaseConnection.getConnection();
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(query)) {
+            
+            if (rs.next()) {
+                ta = rs.getInt("ta_s");
+            }
+        } catch (SQLException e) {
+            System.err.println("Erreur lors de la récupération du TA : " + e.getMessage());
+            throw e;
+        }
+        return ta;
+    }
+
+    /**
+     * Récupère les statistiques d'utilisation des véhicules pour un jour donné.
+     * @param date au format "YYYY-MM-DD"
+     * @return Une Map (ID_VEHICULE => NOMBRE_DE_TRAJETS)
+     */
+    public Map<Integer, Integer> getStatsTrajetsParJour(String date) throws SQLException {
+        Map<Integer, Integer> stats = new HashMap<>();
+        
+        String query = """
+            SELECT id_vehicule, COUNT(*) as nb_trajets
+            FROM reservation_vehicule
+            WHERE DATE(date_heure_depart) = ?::date
+            GROUP BY id_vehicule
+            """;
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            
+            stmt.setString(1, date);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    int idVehicule = rs.getInt("id_vehicule");
+                    int nbTrajets = rs.getInt("nb_trajets");
+                    stats.put(idVehicule, nbTrajets);
+                }
+            }
+        }
+        return stats;
+    }
+
+    
 }

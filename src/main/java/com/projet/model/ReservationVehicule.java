@@ -6,6 +6,7 @@ import java.util.List;
 
 public class ReservationVehicule {
     private int idReservationVehicule;
+    private String titre; // Correction : Ajouté car présent en DB
     private String dateHeureDepart; 
     private String dateHeureRetour; 
     private int idVehicule;
@@ -15,7 +16,6 @@ public class ReservationVehicule {
     private int nbPlaceVehicule;
     private String nomCarburant;
 
-    // Liste des groupes de clients (crucial pour l'affichage)
     private List<Reservation> passagers = new ArrayList<>();
 
     public ReservationVehicule() {}
@@ -24,6 +24,9 @@ public class ReservationVehicule {
     public int getIdReservationVehicule() { return idReservationVehicule; }
     public void setIdReservationVehicule(int id) { this.idReservationVehicule = id; }
     
+    public String getTitre() { return titre; }
+    public void setTitre(String t) { this.titre = t; }
+
     public String getDateHeureDepart() { return dateHeureDepart; }
     public void setDateHeureDepart(String d) { this.dateHeureDepart = d; }
     public void setDateHeureDepart(Timestamp ts) { 

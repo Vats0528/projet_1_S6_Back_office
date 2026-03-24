@@ -1,23 +1,19 @@
 package com.projet.model;
 
 public class DetailsReservationClient {
-    private int idDetails;
+    // Suppression de idDetails car absent du SQL
     private int idReservationClient;
     private int idReservationVehicule;
 
     public DetailsReservationClient() {}
 
-    public DetailsReservationClient(int idDetails, int idReservationClient, int idReservationVehicule) {
-        this.idDetails = idDetails;
+    // Constructeur mis à jour
+    public DetailsReservationClient(int idReservationClient, int idReservationVehicule) {
         this.idReservationClient = idReservationClient;
         this.idReservationVehicule = idReservationVehicule;
     }
 
     // --- Getters ---
-    public int getIdDetails() {
-        return idDetails;
-    }
-
     public int getIdReservationClient() {
         return idReservationClient;
     }
@@ -27,10 +23,6 @@ public class DetailsReservationClient {
     }
 
     // --- Setters ---
-    public void setIdDetails(int idDetails) {
-        this.idDetails = idDetails;
-    }
-
     public void setIdReservationClient(int idReservationClient) {
         this.idReservationClient = idReservationClient;
     }

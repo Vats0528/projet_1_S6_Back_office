@@ -2,41 +2,24 @@ package com.projet.model;
 
 public class ParamVehicule {
     private int idParamVehicule;
-    private int vitessMoyenne;
+    private int vitessMoyenne; // Correction : vitess_moyenne en DB (un seul 's')
     private int tempsAttente;
+    private int taS;           // Correction : ta_s présent en DB
 
     public ParamVehicule() {}
-
+  
     public ParamVehicule(int idParamVehicule, int vitessMoyenne, int tempsAttente) {
         this.idParamVehicule = idParamVehicule;
         this.vitessMoyenne = vitessMoyenne;
         this.tempsAttente = tempsAttente;
     }
 
-    // Getters
-    public int getIdParamVehicule() {
-        return idParamVehicule;
-    }
-
-    public int getVitessMoyenne() {
-        return vitessMoyenne;
-    }
-
-    public int getTempsAttente() {
-        return tempsAttente;
-    }
-
-    // Setters
-    public void setIdParamVehicule(int idParamVehicule) {
-        this.idParamVehicule = idParamVehicule;
-    }
-
-    public void setVitessMoyenne(int vitessMoyenne) {
-        this.vitessMoyenne = vitessMoyenne;
-    }
-
-    public void setTempsAttente(int tempsAttente) {
-        this.tempsAttente = tempsAttente;
-    }
+    public int getIdParamVehicule() { return idParamVehicule; }
+    public void setIdParamVehicule(int id) { this.idParamVehicule = id; }
+    public int getVitessMoyenne() { return vitessMoyenne; }
+    public void setVitessMoyenne(int v) { this.vitessMoyenne = v; }
+    public int getTempsAttente() { return tempsAttente; }
+    public void setTempsAttente(int t) { this.tempsAttente = t; }
+    public int getTaS() { return taS; }
+    public void setTaS(int taS) { this.taS = taS; }
 }
-

@@ -20,12 +20,11 @@ public class DistanceController {
      * Liste toutes les distances enregistrées.
      */
     @GetMapping("/api/distance")
-    public ResponseEntity<List<Distance>> getAllDistances() {
+    public ResponseEntity< List<Distance>> getAllDistances() {
         try {
-            List<Distance> distances = distanceRepository.findAll();
+            List<Distance> distances = distanceRepository.findAll() ; 
             return ResponseEntity.ok(distances);
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }

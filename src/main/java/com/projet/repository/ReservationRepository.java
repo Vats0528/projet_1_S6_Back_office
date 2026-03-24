@@ -5,6 +5,8 @@ import com.projet.model.Reservation;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class ReservationRepository {
 
@@ -203,4 +205,127 @@ public class ReservationRepository {
             stmt.executeUpdate();
         }
     }
+
+
+    /**
+ * Récupère le Temps d'Attente (TA) en minutes depuis la table param_vehicule.
+ */
+public int getTempsAttente() throws SQLException {
+    int ta = 0;
+    String query = "SELECT ta_s FROM param_vehicule LIMIT 1";
+    try (Connection conn = DatabaseConnection.getConnection();
+         Statement stmt = conn.createStatement();
+         ResultSet rs = stmt.executeQuery(query)) {
+        if (rs.next()) {
+            ta = rs.getInt("ta_s");
+        }
+    }
+    return ta;
+}
+
+/**
+ * Regroupe les réservations "EN_ATTENTE" par fenêtre de temps (TA).
+ * @return Une liste de listes (Regroupement 1, Regroupement 2, etc.)
+ */
+public List<List<Reservation>> regrouperReservations1(String date) throws SQLException {
+        // 1. On récupère les réservations non traitées triées par heure ASC
+        List<Reservation> reservations = findUnassignedByDate(date);
+        
+        // 2. On récupère le paramètre TA
+        int taMinutes = getTempsAttente();
+        
+        List<List<Reservation>> resultatFinal = new ArrayList<>();
+
+        // 3. Boucle de regroupement
+        while (!reservations.isEmpty()) {
+            List<Reservation> groupeActuel = new ArrayList<>();
+            
+            // La première est toujours la référence (la plus tôt)
+            Reservation ref = reservations.get(0);
+            groupeActuel.add(ref);
+            
+            // Calcul de l'heure limite : Heure Arrivée Ref + TA
+            Timestamp tsRef = Timestamp.valueOf(ref.getDateHeureArrivee());
+            long limiteMillis = tsRef.getTime() + (taMinutes * 60 * 1000);
+            
+            // On cherche les autres réservations qui rentrent dans cette fenêtre
+            // On commence à l'indice 1 (la suivante)
+            for (int i = 1; i < reservations.size(); i++) {
+                Reservation suivante = reservations.get(i);
+                Timestamp tsSuivante = Timestamp.valueOf(suivante.getDateHeureArrivee());
+                
+                if (tsSuivante.getTime() <= limiteMillis) {
+                    groupeActuel.add(suivante);
+                } else {
+                    // Comme c'est trié par date ASC, si celle-ci dépasse, 
+                    // les suivantes dépasseront aussi.
+                    break;
+                }
+            }
+            
+            // On ajoute le groupe au résultat
+            resultatFinal.add(groupeActuel);
+            
+            // ON retire toutes les réservations du groupe actuel de la liste principale
+            // pour que la boucle 'while' puisse trouver la prochaine 'Heure Min'
+            reservations.removeAll(groupeActuel);
+        }
+        
+        return resultatFinal;
+    }
+
+
+
+
+/**
+ * Regroupe les réservations par fenêtre de temps (TA) 
+ * ET trie chaque groupe par nombre de passagers décroissant.
+ */
+public List<List<Reservation>> regrouperReservations(String date) throws SQLException {
+    List<Reservation> reservations = findUnassignedByDate(date);
+    int taMinutes = getTempsAttente();
+    List<List<Reservation>> resultatFinal = new ArrayList<>();
+
+    while (!reservations.isEmpty()) {
+        List<Reservation> groupeActuel = new ArrayList<>();
+        
+        // 1. Définir la fenêtre de temps
+        Reservation ref = reservations.get(0);
+        groupeActuel.add(ref);
+        
+        Timestamp tsRef = Timestamp.valueOf(ref.getDateHeureArrivee());
+        long limiteMillis = tsRef.getTime() + (taMinutes * 60 * 1000);
+        
+        for (int i = 1; i < reservations.size(); i++) {
+            Reservation suivante = reservations.get(i);
+            Timestamp tsSuivante = Timestamp.valueOf(suivante.getDateHeureArrivee());
+            
+            if (tsSuivante.getTime() <= limiteMillis) {
+                groupeActuel.add(suivante);
+            } else {
+                break;
+            }
+        }
+
+        // --- NOUVEAUTÉ : TRI PAR NOMBRE DE PASSAGERS DÉCROISSANT ---
+        // On trie le groupe avant de l'ajouter au résultat final
+        Collections.sort(groupeActuel, new Comparator<Reservation>() {
+            @Override
+            public int compare(Reservation r1, Reservation r2) {
+                // Pour un tri décroissant : r2 comparé à r1
+                return Integer.compare(r2.getNbPassager(), r1.getNbPassager());
+            }
+        });
+        // ---------------------------------------------------------
+
+        resultatFinal.add(groupeActuel);
+        reservations.removeAll(groupeActuel);
+    }
+    
+    return resultatFinal;
+}
+
+
+
+
 }

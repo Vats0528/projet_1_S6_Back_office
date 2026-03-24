@@ -6,7 +6,6 @@ import com.framework.util.HttpStatus;
 
 import com.projet.model.Reservation;
 import com.projet.repository.ReservationRepository;
-import com.projet.service.TokenService;
 
 import java.util.List;
 
@@ -19,51 +18,14 @@ public class ReservationController {
     /**
      * Liste toutes les réservations.
      */
-    private ResponseEntity<?> checkToken(String token) {
-        try {
-            if (token == null || token.trim().isEmpty()) {
-                return ResponseEntity
-                        .status(HttpStatus.UNAUTHORIZED)
-                        .body("Token absent");
-            }
-
-            boolean isValid = tokenService.validateToken(token);
-
-            if (!isValid) {
-                return ResponseEntity
-                        .status(HttpStatus.UNAUTHORIZED)
-                        .body("Token invalide ou expiré");
-            }
-
-            return null; // Token valide
-
-        } catch (Exception e) {
-            return ResponseEntity
-                    .status(HttpStatus.FORBIDDEN)
-                    .body("Token révoqué ou accès interdit");
-        }
-    }
-
-    /**
-     * GET /main/{token}/api/reservations
-     */
-    @GetMapping("/main/{token}/api/reservations")
-    public ResponseEntity<List<Reservation>> getAllReservations(
-            @PathVariable("token") String token) {
-
-        ResponseEntity<?> security = checkToken(token);
-        if (security != null)
-            return (ResponseEntity<List<Reservation>>) security;
-
+    @GetMapping("/api/reservations")
+    public ResponseEntity<List<Reservation>> getAllReservations() {
         try {
             List<Reservation> reservations = reservationRepository.findAll();
             return ResponseEntity.ok(reservations);
-
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
@@ -75,12 +37,9 @@ public class ReservationController {
         try {
             List<Reservation> reservations = reservationRepository.findUnassignedByDate(date);
             return ResponseEntity.ok(reservations);
-
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
@@ -115,31 +74,17 @@ public class ReservationController {
     /**
      * Récupère une réservation spécifique.
      */
-    @GetMapping("/main/{token}/api/reservations/{id}")
-    public ResponseEntity<Reservation> getReservationById(
-            @PathVariable("token") String token,
-            @PathVariable("id") int id) {
-
-        ResponseEntity<?> security = checkToken(token);
-        if (security != null)
-            return (ResponseEntity<Reservation>) security;
-
+    @GetMapping("/api/reservations/{id}")
+    public ResponseEntity<Reservation> getReservationById(@PathVariable("id") int id) {
         try {
             Reservation reservation = reservationRepository.findById(id);
-
             if (reservation != null) {
                 return ResponseEntity.ok(reservation);
             }
-
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body(null);
-
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
@@ -154,39 +99,46 @@ public class ReservationController {
             
             Reservation updated = reservationRepository.findById(id);
             return ResponseEntity.ok(updated);
-
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
     /**
      * Supprime une réservation.
      */
-    @DeleteMapping("/main/{token}/api/reservations/{id}")
-    public ResponseEntity<Void> deleteReservation(
-            @PathVariable("token") String token,
-            @PathVariable("id") int id) {
-
-        ResponseEntity<?> security = checkToken(token);
-        if (security != null)
-            return (ResponseEntity<Void>) security;
-
+    @DeleteMapping("/api/reservations/{id}")
+    public ResponseEntity<Void> deleteReservation(@PathVariable("id") int id) {
         try {
             reservationRepository.delete(id);
-
-            return ResponseEntity
-                    .status(HttpStatus.NO_CONTENT)
-                    .body(null);
-
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    /**
+     * Regroupe les réservations par fenêtre de temps (TA) pour une date donnée.
+     * GET /api/reservations/groups/{date}
+     * Retourne une List<List<Reservation>> (Liste à deux dimensions).
+     */
+    @GetMapping("/api/reservations/groups/{date}")
+    public ResponseEntity<List<List<Reservation>>> getRegroupements(@PathVariable("date") String date) {
+        try {
+            // Appel de la logique algorithmique du Repository
+            List<List<Reservation>> groupes = reservationRepository.regrouperReservations(date);
+            
+            if (groupes.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+            }
+            
+            return ResponseEntity.ok(groupes);
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Retourne une erreur 500 si le calcul ou la base de données échoue
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 }
