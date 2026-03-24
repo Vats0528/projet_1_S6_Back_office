@@ -1,5 +1,5 @@
-DROP DATABASE IF EXISTS simulation_transport;
+DROP DATABASE IF EXISTS projet_1_s6;
 
-CREATE DATABASE simulation_transport;
+CREATE DATABASE projet_1_s6;
 
-\c simulation_transport
+\c projet_1_s6
