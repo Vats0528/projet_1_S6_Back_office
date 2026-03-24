@@ -18,8 +18,20 @@ public class Hotel {
     public String getNomHotel() { return nomHotel; }
     public int getIdLieu() { return idLieu; }
 
+    public int getIdLieu() {
+        return idLieu;
+    }
+
     // Setters
-    public void setIdHotel(int idHotel) { this.idHotel = idHotel; }
-    public void setNomHotel(String nomHotel) { this.nomHotel = nomHotel; }
-    public void setIdLieu(int idLieu) { this.idLieu = idLieu; }
+    public void setIdHotel(int idHotel) {
+        this.idHotel = idHotel;
+    }
+
+    public void setNomHotel(String nomHotel) {
+        this.nomHotel = nomHotel;
+    }
+    
+    public void setIdLieu(int idLieu) {
+        this.idLieu = idLieu ;
+    }
 }

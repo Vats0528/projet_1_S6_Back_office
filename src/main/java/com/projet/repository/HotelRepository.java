@@ -19,8 +19,9 @@ public class HotelRepository {
         
         while (rs.next()) {
             Hotel hotel = new Hotel();
-            hotel.setIdHotel(rs.getInt("id"));
-            hotel.setNomHotel(rs.getString("libelle"));
+            hotel.setIdHotel(rs.getInt("id_hotel"));
+            hotel.setNomHotel(rs.getString("nom_hotel"));
+            hotel.setIdLieu(rs.getInt("idLieu"));
             hotels.add(hotel);
         }
         
