@@ -15,10 +15,11 @@ CREATE TABLE reservation_client(
    id_reservation_client SERIAL,
    nb_passager INTEGER NOT NULL,
    date_heure_arrivee TIMESTAMP,
-   id_lieu INTEGER NOT NULL,
+   id_hotel INTEGER NOT NULL,
+   status VARCHAR(50) DEFAULT 'EN_ATTENTE',
    id_client INTEGER NOT NULL,
    PRIMARY KEY(id_reservation_client),
-   FOREIGN KEY(id_lieu) REFERENCES lieu(id_lieu),
+   FOREIGN KEY(id_hotel) REFERENCES lieu(id_lieu),
    FOREIGN KEY(id_client) REFERENCES client(id_client)
 );
 

@@ -8,14 +8,14 @@ BO :  ETU003244         -Kiady
 A faire -> TL
 [Objectif-par-branche]
     [Sprint3/Feat]
-        [ ] - todo et distribution des tâches
-        [ ] - créer et committer [TABLE_sprint_3_2026.sql]
+        [x] - todo et distribution des tâches
+        [x] - créer et committer [TABLE_sprint_3_2026.sql]
               (migration : hotel → lieu, ajout distance, vehicule,
                carburant, param_vehicule, reservation_vehicule,
                details_reservation_client, details_trajet)
-        [ ] - committer les données de test [init-sql-sprint3]
+        [x] - committer les données de test [init-sql-sprint3]
               (lieux, distances entre lieux, véhicules, carburants, param_vehicule)
-        [ ] - final merge de toutes les branches feature
+        [x] - final merge de toutes les branches feature
 
     [Coordination]
         [ ] - vérifier que BO et FO utilisent bien les mêmes noms d'endpoints
@@ -38,34 +38,34 @@ A faire -> TL
 A faire -> FO
 [objectif-par-pages]
     -[page_form_reservation]                             [ ] -[page_lieu]
-        [ ] - liste des lieux
-        [ ] - formulaire ajout/modif lieu
+        [x] - liste des lieux
+        [x] - formulaire ajout/modif lieu
 
-[ ] -[page_vehicule]
-        [ ] - liste des véhicules (modèle, nb_place, carburant)
-        [ ] - formulaire ajout/modif véhicule
+[x] -[page_vehicule]
+        [x] - liste des véhicules (modèle, nb_place, carburant)
+        [x] - formulaire ajout/modif véhicule
 
-[ ] -[page_param_vehicule]
-        [ ] - affichage et modification de VM et TA
+[x] -[page_param_vehicule]
+        [x] - affichage et modification de VM et TA
 
-[ ] -[page_form_reservation]
-        [ ] - liste déroulante client                     [id_client]
-        [ ] - liste déroulante lieu destination           [id_lieu]
-        [ ] - input : nb_passager, date_heure_arrivee
-        [ ] - soumission → appel API reservation
+[x] -[page_form_reservation]
+        [x] - liste déroulante client                     [id_client]
+        [x] - liste déroulante lieu destination           [id_lieu]
+        [x] - input : nb_passager, date_heure_arrivee
+        [x] - soumission → appel API reservation
 
-[ ] -[page_liste_reservation]
-        [ ] - liste des réservations
-        [ ] - filtre par date/heure
+[x] -[page_liste_reservation]
+        [x] - liste des réservations
+        [x] - filtre par date/heure
 
-[ ] -[page_assignation]
-        [ ] - afficher réservations non encore assignées
-        [ ] - lancer l'assignation → appel API
-        [ ] - afficher le résultat :
-                [ ] - groupe de clients regroupés
-                [ ] - véhicule assigné (modèle, capacité, carburant)
-                [ ] - ordre des arrêts (lieu 1 → lieu 2 → ...)
-                [ ] - date_heure_depart et date_heure_retour calculés
+[x] -[page_assignation]
+        [x] - afficher réservations non encore assignées
+        [x] - lancer l'assignation → appel API
+        [x] - afficher le résultat :
+                [x] - groupe de clients regroupés
+                [x] - véhicule assigné (modèle, capacité, carburant)
+                [x] - ordre des arrêts (lieu 1 → lieu 2 → ...)
+                [x] - date_heure_depart et date_heure_retour calculés
 
 <!-- ///////////////////////////////////////////////////// -->
 
