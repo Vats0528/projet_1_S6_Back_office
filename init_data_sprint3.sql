@@ -81,12 +81,12 @@ INSERT INTO client (nom_client) VALUES
 
 -- RESERVATION CLIENT
 -- Groupe 1 : arrivées proches (± 30min), à regrouper potentiellement
-INSERT INTO reservation_client (nb_passager, date_heure_arrivee, id_lieu, id_client) VALUES
-(3, '2026-02-20 08:00:00', 2, 1),   -- Rakoto → Colbert       (groupe A)
-(2, '2026-02-20 08:15:00', 3, 2),   -- Rabe → Ibis            (groupe A)
-(4, '2026-02-20 08:20:00', 5, 3),   -- Randria → Sakamanga    (groupe A)
-(2, '2026-02-20 10:00:00', 4, 4),   -- Rasoa → Carlton        (groupe B)
-(5, '2026-02-20 10:10:00', 6, 5),   -- Ramiandrisoa → Glacier (groupe B)
-(3, '2026-02-20 14:00:00', 2, 6),   -- Rajaonarison → Colbert (groupe C)
-(1, '2026-02-20 14:25:00', 3, 7),   -- Andriamahefa → Ibis    (groupe C)
-(6, '2026-02-20 16:00:00', 4, 8);   -- Razafy → Carlton       (seul)
+INSERT INTO reservation_client (nb_passager, date_heure_arrivee, id_hotel, id_client, status) VALUES
+(3, '2026-02-20 08:00:00', 2, 1, 'PENDING'),   -- Rakoto → Colbert       (groupe A)
+(2, '2026-02-20 08:15:00', 3, 2, 'PENDING'),   -- Rabe → Ibis            (groupe A)
+(4, '2026-02-20 08:20:00', 5, 3, 'PENDING'),   -- Randria → Sakamanga    (groupe A)
+(2, '2026-02-20 10:00:00', 4, 4, 'PENDING'),   -- Rasoa → Carlton        (groupe B)
+(5, '2026-02-20 10:10:00', 6, 5, 'PENDING'),   -- Ramiandrisoa → Glacier (groupe B)
+(3, '2026-02-20 14:00:00', 2, 6, 'PENDING'),   -- Rajaonarison → Colbert (groupe C)
+(1, '2026-02-20 14:25:00', 3, 7, 'PENDING'),   -- Andriamahefa → Ibis    (groupe C)
+(6, '2026-02-20 16:00:00', 4, 8, 'PENDING');   -- Razafy → Carlton       (seul)
