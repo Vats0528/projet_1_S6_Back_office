@@ -6,83 +6,53 @@ public class Reservation {
     private int idReservation;
     private int nbPassager;
     private String dateHeureArrivee;
+    private String status; 
     private int idHotel;
     private int idClient;
     
-    // Pour les jointures
+    
+    // Jointures
+    private String libelleLieu;
     private String nomHotel;
     private String nomClient;
+    private int idLieu;
 
     public Reservation() {}
 
-    public Reservation(int idReservation, int nbPassager, String dateHeureArrivee, 
-                       int idHotel, int idClient) {
-        this.idReservation = idReservation;
-        this.nbPassager = nbPassager;
-        this.dateHeureArrivee = dateHeureArrivee;
-        this.idHotel = idHotel;
-        this.idClient = idClient;
+    // --- Getters & Setters Standard ---
+    public int getIdReservation() { return idReservation; }
+    public void setIdReservation(int id) { this.idReservation = id; }
+    public int getNbPassager() { return nbPassager; }
+    public void setNbPassager(int nb) { this.nbPassager = nb; }
+    public String getDateHeureArrivee() { return dateHeureArrivee; }
+    public void setDateHeureArrivee(String d) { this.dateHeureArrivee = d; }
+    
+    // Le "Bridge" pour le Repository (très important)
+    public void setDateHeureArrivee(Timestamp ts) { 
+        this.dateHeureArrivee = (ts != null) ? ts.toString() : null; 
     }
 
-    // Getters
-    public int getIdReservation() {
-        return idReservation;
-    }
+    public String getStatus() { return status; }
+    public void setStatus(String s) { this.status = s; }
+    public int getIdHotel() { return idHotel; }
+    public void setIdHotel(int id) { this.idHotel = id; }
+    public int getIdClient() { return idClient; }
+    public void setIdClient(int id) { this.idClient = id; }
+    public String getLibelleLieu() { return libelleLieu; }
+    public void setLibelleLieu(String l) { this.libelleLieu = l; }
+    public String getNomHotel() { return nomHotel; }
+    public void setNomHotel(String n) { this.nomHotel = n; }
+    public String getNomClient() { return nomClient; }
+    public void setNomClient(String n) { this.nomClient = n; }
 
-    public int getNbPassager() {
-        return nbPassager;
-    }
-
-    public String getDateHeureArrivee() {
-        return dateHeureArrivee;
-    }
-
-    public int getIdHotel() {
-        return idHotel;
-    }
-
-    public int getIdClient() {
-        return idClient;
-    }
-
-    public String getNomHotel() {
-        return nomHotel;
-    }
-
-    public String getNomClient() {
-        return nomClient;
-    }
-
-    // Setters
-    public void setIdReservation(int idReservation) {
-        this.idReservation = idReservation;
-    }
-
-    public void setNbPassager(int nbPassager) {
-        this.nbPassager = nbPassager;
-    }
-
-    public void setDateHeureArrivee(String dateHeureArrivee) {
-        this.dateHeureArrivee = dateHeureArrivee;
+    public int getIdLieu() {
+        return idLieu;
     }
     
-    public void setDateHeureArrivee(Timestamp dateHeureArrivee) {
-        this.dateHeureArrivee = dateHeureArrivee != null ? dateHeureArrivee.toString() : null;
+    // 3. Ajoute le Setter (C'est lui qui manque !)
+    public void setIdLieu(int idLieu) {
+        this.idLieu = idLieu;
     }
 
-    public void setIdHotel(int idHotel) {
-        this.idHotel = idHotel;
-    }
-
-    public void setIdClient(int idClient) {
-        this.idClient = idClient;
-    }
-
-    public void setNomHotel(String nomHotel) {
-        this.nomHotel = nomHotel;
-    }
-
-    public void setNomClient(String nomClient) {
-        this.nomClient = nomClient;
-    }
+    
 }
