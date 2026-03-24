@@ -1,13 +1,6 @@
 package com.projet.controller;
 
-import com.framework.annotation.RestController;
-import com.framework.annotation.GetMapping;
-import com.framework.annotation.PostMapping;
-import com.framework.annotation.PutMapping;
-import com.framework.annotation.DeleteMapping;
-import com.framework.annotation.PathVariable;
-import com.framework.annotation.RequestBody;
-import com.framework.annotation.CrossOrigin;
+import com.framework.annotation.*;
 import com.framework.util.ResponseEntity;
 import com.framework.util.HttpStatus;
 
@@ -20,10 +13,11 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class DistanceController {
 
-    private DistanceRepository distanceRepository = new DistanceRepository();
+    private final DistanceRepository distanceRepository = new DistanceRepository();
 
     /**
-     * GET /api/distance - Liste toutes les distances
+     * GET /api/distance
+     * Liste toutes les distances enregistrées.
      */
     @GetMapping("/api/distance")
     public ResponseEntity<List<Distance>> getAllDistances() {
@@ -37,11 +31,13 @@ public class DistanceController {
     }
 
     /**
-     * GET /api/distance/{id} - Récupère une distance par ID
+     * GET /api/distance/{id}
+     * Récupère une distance spécifique par son ID.
      */
     @GetMapping("/api/distance/{id}")
     public ResponseEntity<Distance> getDistanceById(@PathVariable("id") int id) {
         try {
+            // Note: Assure-toi que findById est bien implémenté dans ton repo
             Distance distance = distanceRepository.findById(id);
             if (distance != null) {
                 return ResponseEntity.ok(distance);
@@ -54,11 +50,13 @@ public class DistanceController {
     }
 
     /**
-     * GET /api/distance/entre/{lieu1}/{lieu2} - Récupère la distance entre deux lieux
+     * GET /api/distance/entre/{lieu1}/{lieu2}
+     * Récupère la distance entre deux points.
      */
     @GetMapping("/api/distance/entre/{lieu1}/{lieu2}")
     public ResponseEntity<List<Distance>> getDistanceBetween(@PathVariable("lieu1") int lieu1, @PathVariable("lieu2") int lieu2) {
         try {
+            // Utilise la méthode findByLieux que nous avons corrigée dans le repository
             List<Distance> distances = distanceRepository.findByLieux(lieu1, lieu2);
             return ResponseEntity.ok(distances);
         } catch (Exception e) {
@@ -68,7 +66,8 @@ public class DistanceController {
     }
 
     /**
-     * POST /api/distance - Crée une nouvelle distance
+     * POST /api/distance
+     * Ajoute un nouveau trajet (temps/distance) en base.
      */
     @PostMapping("/api/distance")
     public ResponseEntity<Distance> createDistance(@RequestBody Distance distance) {
@@ -82,7 +81,8 @@ public class DistanceController {
     }
 
     /**
-     * PUT /api/distance/{id} - Met à jour une distance
+     * PUT /api/distance/{id}
+     * Met à jour les informations d'un trajet existant.
      */
     @PutMapping("/api/distance/{id}")
     public ResponseEntity<Distance> updateDistance(@PathVariable("id") int id, @RequestBody Distance distance) {
@@ -97,7 +97,8 @@ public class DistanceController {
     }
 
     /**
-     * DELETE /api/distance/{id} - Supprime une distance
+     * DELETE /api/distance/{id}
+     * Supprime un trajet.
      */
     @DeleteMapping("/api/distance/{id}")
     public ResponseEntity<Void> deleteDistance(@PathVariable("id") int id) {
@@ -110,4 +111,3 @@ public class DistanceController {
         }
     }
 }
-

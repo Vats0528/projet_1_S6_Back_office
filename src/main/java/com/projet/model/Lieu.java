@@ -4,6 +4,7 @@ public class Lieu {
     private int idLieu;
     private String code;
     private String libelle;
+    
 
     public Lieu() {}
 

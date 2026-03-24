@@ -1,13 +1,6 @@
 package com.projet.controller;
 
-import com.framework.annotation.RestController;
-import com.framework.annotation.GetMapping;
-import com.framework.annotation.PostMapping;
-import com.framework.annotation.PutMapping;
-import com.framework.annotation.DeleteMapping;
-import com.framework.annotation.PathVariable;
-import com.framework.annotation.RequestBody;
-import com.framework.annotation.CrossOrigin;
+import com.framework.annotation.*;
 import com.framework.util.ResponseEntity;
 import com.framework.util.HttpStatus;
 
@@ -20,14 +13,16 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class VehiculeController {
 
-    private VehiculeRepository vehiculeRepository = new VehiculeRepository();
+    private final VehiculeRepository vehiculeRepository = new VehiculeRepository();
 
     /**
-     * GET /api/vehicule - Liste tous les véhicules
+     * GET /api/vehicule
+     * Liste tous les véhicules, idéalement triés par efficacité (moins polluants en premier).
      */
     @GetMapping("/api/vehicule")
     public ResponseEntity<List<Vehicule>> getAllVehicules() {
         try {
+            // Utilise la méthode findAll que nous avons optimisée
             List<Vehicule> vehicules = vehiculeRepository.findAll();
             return ResponseEntity.ok(vehicules);
         } catch (Exception e) {
@@ -37,28 +32,13 @@ public class VehiculeController {
     }
 
     /**
-     * GET /api/vehicule/{id} - Récupère un véhicule par ID
-     */
-    @GetMapping("/api/vehicule/{id}")
-    public ResponseEntity<Vehicule> getVehiculeById(@PathVariable("id") int id) {
-        try {
-            Vehicule vehicule = vehiculeRepository.findById(id);
-            if (vehicule != null) {
-                return ResponseEntity.ok(vehicule);
-            }
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
-    }
-
-    /**
-     * GET /api/vehicule/capacite/{places} - Filtre les véhicules par capacité minimale
+     * GET /api/vehicule/capacite/{places}
+     * Utile si le front-end veut filtrer manuellement.
      */
     @GetMapping("/api/vehicule/capacite/{places}")
     public ResponseEntity<List<Vehicule>> getVehiculesByCapacity(@PathVariable("places") int places) {
         try {
+            // Vérifie que cette méthode existe dans ton VehiculeRepository
             List<Vehicule> vehicules = vehiculeRepository.findByCapacity(places);
             return ResponseEntity.ok(vehicules);
         } catch (Exception e) {
@@ -67,9 +47,6 @@ public class VehiculeController {
         }
     }
 
-    /**
-     * POST /api/vehicule - Crée un nouveau véhicule
-     */
     @PostMapping("/api/vehicule")
     public ResponseEntity<Vehicule> createVehicule(@RequestBody Vehicule vehicule) {
         try {
@@ -81,24 +58,18 @@ public class VehiculeController {
         }
     }
 
-    /**
-     * PUT /api/vehicule/{id} - Met à jour un véhicule
-     */
     @PutMapping("/api/vehicule/{id}")
     public ResponseEntity<Vehicule> updateVehicule(@PathVariable("id") int id, @RequestBody Vehicule vehicule) {
         try {
             vehicule.setIdVehicule(id);
-            Vehicule updated = vehiculeRepository.update(vehicule);
-            return ResponseEntity.ok(updated);
+            vehiculeRepository.update(vehicule);
+            return ResponseEntity.ok(vehicule);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
-    /**
-     * DELETE /api/vehicule/{id} - Supprime un véhicule
-     */
     @DeleteMapping("/api/vehicule/{id}")
     public ResponseEntity<Void> deleteVehicule(@PathVariable("id") int id) {
         try {
@@ -110,4 +81,3 @@ public class VehiculeController {
         }
     }
 }
-

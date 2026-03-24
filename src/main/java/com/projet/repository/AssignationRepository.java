@@ -2,303 +2,184 @@ package com.projet.repository;
 
 import com.projet.config.DatabaseConnection;
 import com.projet.model.*;
-
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AssignationRepository {
 
-    private ReservationRepository reservationRepository = new ReservationRepository();
-    private VehiculeRepository vehiculeRepository = new VehiculeRepository();
-    private DistanceRepository distanceRepository = new DistanceRepository();
-    private ParamVehiculeRepository paramVehiculeRepository = new ParamVehiculeRepository();
-
     /**
-     * Récupère les réservations non assignées (sans entrée dans details_reservation_client)
+     * Enregistre une mission et lie les passagers dans une transaction.
      */
-    public List<Reservation> getReservationsNonAssignees() throws SQLException {
-        String query = """
-            SELECT r.id_reservation_client, r.nb_passager, r.date_heure_arrivee, 
-                   r.id_lieu, r.id_client, l.libelle as libelle_lieu, c.nom_client
-            FROM reservation_client r
-            JOIN lieu l ON r.id_lieu = l.id_lieu
-            JOIN client c ON r.id_client = c.id_client
-            WHERE r.id_reservation_client NOT IN (
-                SELECT id_reservation_client FROM details_reservation_client
-            )
-            ORDER BY r.date_heure_arrivee
-            """;
-        
-        List<Reservation> reservations = new ArrayList<>();
+    public void confirmerAssignation(ReservationVehicule mission) throws SQLException {
         Connection conn = DatabaseConnection.getConnection();
-        PreparedStatement stmt = conn.prepareStatement(query);
-        ResultSet rs = stmt.executeQuery();
-        
-        while (rs.next()) {
-            Reservation reservation = new Reservation();
-            reservation.setIdReservation(rs.getInt("id_reservation_client"));
-            reservation.setNbPassager(rs.getInt("nb_passager"));
-            reservation.setDateHeureArrivee(rs.getTimestamp("date_heure_arrivee"));
-            reservation.setIdLieu(rs.getInt("id_lieu"));
-            reservation.setIdClient(rs.getInt("id_client"));
-            reservation.setLibelleLieu(rs.getString("libelle_lieu"));
-            reservation.setNomClient(rs.getString("nom_client"));
-            reservations.add(reservation);
-        }
-        
-        rs.close();
-        stmt.close();
-        
-        return reservations;
-    }
+        try {
+            conn.setAutoCommit(false);
 
-    /**
-     * Groupe les réservations par créneau horaire (± temps d'attente)
-     */
-    public List<List<Reservation>> grouperReservations(List<Reservation> reservations, int tempsAttente) {
-        List<List<Reservation>> groupes = new ArrayList<>();
-        
-        if (reservations.isEmpty()) {
-            return groupes;
-        }
-        
-        List<Reservation> groupeActuel = new ArrayList<>();
-        Timestamp heureReference = Timestamp.valueOf(reservations.get(0).getDateHeureArrivee());
-        
-        for (Reservation reservation : reservations) {
-            Timestamp heureArrivee = Timestamp.valueOf(reservation.getDateHeureArrivee());
-            
-            // Vérifier si la réservation est dans le créneau ± tempsAttente
-            long diffMinutes = Math.abs(heureArrivee.getTime() - heureReference.getTime()) / (1000 * 60);
-            
-            if (diffMinutes <= tempsAttente) {
-                groupeActuel.add(reservation);
-            } else {
-                if (!groupeActuel.isEmpty()) {
-                    groupes.add(new ArrayList<>(groupeActuel));
-                }
-                groupeActuel = new ArrayList<>();
-                groupeActuel.add(reservation);
-                heureReference = heureArrivee;
-            }
-        }
-        
-        if (!groupeActuel.isEmpty()) {
-            groupes.add(groupeActuel);
-        }
-        
-        return groupes;
-    }
-
-    /**
-     * Filtre les véhicules disponibles par capacité
-     */
-    public List<Vehicule> getVehiculesDisponibles(int nbPassagersTotal) throws SQLException {
-        return vehiculeRepository.findByCapacity(nbPassagersTotal);
-    }
-
-    /**
-     * Choisit le véhicule optimal (moins de trajets déjà assignés)
-     */
-    public Vehicule choisirVehiculeOptimal(List<Vehicule> vehiculesDisponibles) throws SQLException {
-        if (vehiculesDisponibles.isEmpty()) {
-            return null;
-        }
-        
-        // Compter le nombre de réservations existantes pour chaque véhicule
-        Map<Integer, Integer> countMap = new HashMap<>();
-        
-        for (Vehicule v : vehiculesDisponibles) {
-            String query = """
-                SELECT COUNT(*) as count FROM reservation_vehicule 
-                WHERE id_vehicule = ?
+            // 1. Insérer la mission (Utilisation de Timestamp.valueOf pour convertir nos String Java)
+            String queryMission = """
+                INSERT INTO reservation_vehicule (date_heure_depart, date_heure_retour, id_vehicule)
+                VALUES (?::timestamp, ?::timestamp, ?) RETURNING id_reservation_vehicule
                 """;
             
-            Connection conn = DatabaseConnection.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(query);
-            stmt.setInt(1, v.getIdVehicule());
-            ResultSet rs = stmt.executeQuery();
-            
-            if (rs.next()) {
-                countMap.put(v.getIdVehicule(), rs.getInt("count"));
-            } else {
-                countMap.put(v.getIdVehicule(), 0);
+            int idMission;
+            try (PreparedStatement stmt = conn.prepareStatement(queryMission)) {
+                stmt.setString(1, mission.getDateHeureDepart());
+                stmt.setString(2, mission.getDateHeureRetour());
+                stmt.setInt(3, mission.getIdVehicule());
+                
+                ResultSet rs = stmt.executeQuery();
+                rs.next();
+                idMission = rs.getInt(1);
             }
-            
-            rs.close();
-            stmt.close();
+
+            // 2. Lier chaque réservation client et mettre à jour le status
+            String queryLien = "INSERT INTO details_reservation_client (id_reservation_client, id_reservation_vehicule) VALUES (?, ?)";
+            String queryUpdateStatus = "UPDATE reservation_client SET status = 'CONFIRME' WHERE id_reservation_client = ?";
+
+            try (PreparedStatement stmtLien = conn.prepareStatement(queryLien);
+                 PreparedStatement stmtUpdate = conn.prepareStatement(queryUpdateStatus)) {
+                
+                // Note : On utilise getPassagers() conformément à ton modèle ReservationVehicule
+                for (Reservation res : mission.getPassagers()) {
+                    stmtLien.setInt(1, res.getIdReservation());
+                    stmtLien.setInt(2, idMission);
+                    stmtLien.addBatch();
+
+                    stmtUpdate.setInt(1, res.getIdReservation());
+                    stmtUpdate.addBatch();
+                }
+                stmtLien.executeBatch();
+                stmtUpdate.executeBatch();
+            }
+
+            conn.commit();
+        } catch (SQLException e) {
+            conn.rollback();
+            throw e;
+        } finally {
+            conn.setAutoCommit(true);
         }
-        
-        // Trier par nombre de réservations croissantes
-        vehiculesDisponibles.sort((v1, v2) -> 
-            countMap.get(v1.getIdVehicule()) - countMap.get(v2.getIdVehicule())
-        );
-        
-        return vehiculesDisponibles.get(0);
     }
 
     /**
-     * Ordonne les destinations par distance croissante depuis l'aéroport
+     * Récupère les missions d'une date.
      */
-    public List<Reservation> ordonnerParDistanceCroissante(List<Reservation> reservations, int idAeroport) throws SQLException {
-        if (reservations.size() <= 1) {
-            return reservations;
-        }
-        
-        // Calculer la distance de chaque réservation depuis l'aéroport
-        Map<Reservation, Double> distanceMap = new HashMap<>();
-        
-        for (Reservation reservation : reservations) {
-            double distance = getDistanceEntreLieux(idAeroport, reservation.getIdLieu());
-            distanceMap.put(reservation, distance);
-        }
-        
-        // Trier par distance croissante
-        List<Reservation> trie = new ArrayList<>(reservations);
-        trie.sort((r1, r2) -> 
-            Double.compare(distanceMap.get(r1), distanceMap.get(r2))
-        );
-        
-        return trie;
-    }
-
-    /**
-     * Récupère la distance entre deux lieux
-     */
-    private double getDistanceEntreLieux(int idLieu1, int idLieu2) throws SQLException {
-        List<Distance> distances = distanceRepository.findByLieux(idLieu1, idLieu2);
-        
-        if (!distances.isEmpty()) {
-            return distances.get(0).getDistance();
-        }
-        
-        return Double.MAX_VALUE;
-    }
-
-    /**
-     * Crée une réservation véhicule
-     */
-    public int createReservationVehicule(Timestamp dateHeureDepart, Timestamp dateHeureRetour, int idVehicule) throws SQLException {
+    public List<ReservationVehicule> findAssignationsByDate(String date) throws SQLException {
+        List<ReservationVehicule> missions = new ArrayList<>();
         String query = """
-            INSERT INTO reservation_vehicule (date_heure_depart, date_heure_retour, id_vehicule) 
-            VALUES (?, ?, ?) RETURNING id_reservation_vehicule
+            SELECT rv.*, v.model as model_vehicule, v.nb_place as nb_place_vehicule, c.nom_carburant
+            FROM reservation_vehicule rv
+            JOIN vehicule v ON rv.id_vehicule = v.id_vehicule
+            JOIN carburant c ON v.id_carburant = c.id_carburant
+            WHERE DATE(rv.date_heure_depart) = ?::date
             """;
-        
-        Connection conn = DatabaseConnection.getConnection();
-        PreparedStatement stmt = conn.prepareStatement(query);
-        stmt.setTimestamp(1, dateHeureDepart);
-        stmt.setTimestamp(2, dateHeureRetour);
-        stmt.setInt(3, idVehicule);
-        ResultSet rs = stmt.executeQuery();
-        
-        int idReservationVehicule = 0;
-        if (rs.next()) {
-            idReservationVehicule = rs.getInt("id_reservation_vehicule");
-        }
-        
-        rs.close();
-        stmt.close();
-        
-        return idReservationVehicule;
-    }
 
-    /**
-     * Crée les détails de réservation client
-     */
-    public void createDetailsReservationClient(int idReservationClient, int idReservationVehicule) throws SQLException {
-        String query = """
-            INSERT INTO details_reservation_client (id_reservation_client, id_reservation_vehicule) 
-            VALUES (?, ?)
-            """;
-        
-        Connection conn = DatabaseConnection.getConnection();
-        PreparedStatement stmt = conn.prepareStatement(query);
-        stmt.setInt(1, idReservationClient);
-        stmt.setInt(2, idReservationVehicule);
-        stmt.executeUpdate();
-        
-        stmt.close();
-    }
-
-    /**
-     * Crée les détails du trajet
-     */
-    public void createDetailsTrajet(int idDistance, int idReservationVehicule, int succession) throws SQLException {
-        String query = """
-            INSERT INTO details_trajet (id_distance, id_reservation_vehicule, succession) 
-            VALUES (?, ?, ?)
-            """;
-        
-        Connection conn = DatabaseConnection.getConnection();
-        PreparedStatement stmt = conn.prepareStatement(query);
-        stmt.setInt(1, idDistance);
-        stmt.setInt(2, idReservationVehicule);
-        stmt.setInt(3, succession);
-        stmt.executeUpdate();
-        
-        stmt.close();
-    }
-
-    /**
-     * Récupère la distance entre deux lieux et retourne l'objet Distance
-     */
-    public Distance getDistanceObject(int idLieu1, int idLieu2) throws SQLException {
-        List<Distance> distances = distanceRepository.findByLieux(idLieu1, idLieu2);
-        
-        if (!distances.isEmpty()) {
-            return distances.get(0);
-        }
-        
-        return null;
-    }
-
-    /**
-     * Récupère les paramètres globaux du véhicule
-     */
-    public ParamVehicule getParametresVehicule() throws SQLException {
-        return paramVehiculeRepository.getGlobal();
-    }
-
-    /**
-     * Calcule la date/heure de retour
-     * date_heure_retour = date_heure_depart + Σ(temps_trajet_i) + Σ(temps_attente) + temps_retour_aeroport
-     */
-    public Timestamp calculerDateHeureRetour(Timestamp dateHeureDepart, List<Reservation> reservations, 
-                                              int idAeroport, int vitessMoyenne, int tempsAttente) throws SQLException {
-        
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(dateHeureDepart.getTime());
-        
-        // Pour chaque arrêt (sauf le dernier), ajouter le temps de trajet et le temps d'attente
-        for (int i = 0; i < reservations.size(); i++) {
-            Reservation reservation = reservations.get(i);
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
             
-            // Calculer le temps de trajet depuis le lieu précédent (ou aéroport pour le premier)
-            int idLieuDepart = (i == 0) ? idAeroport : reservations.get(i - 1).getIdLieu();
-            double distance = getDistanceEntreLieux(idLieuDepart, reservation.getIdLieu());
-            double tempsTrajetHeures = distance / vitessMoyenne;
-            long tempsTrajetMinutes = (long) (tempsTrajetHeures * 60);
-            
-            // Ajouter le temps de trajet
-            cal.add(Calendar.MINUTE, (int)tempsTrajetMinutes);
-            
-            // Ajouter le temps d'attente (sauf pour le dernier arrêt)
-            if (i < reservations.size() - 1) {
-                cal.add(Calendar.MINUTE, tempsAttente);
+            stmt.setString(1, date);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    ReservationVehicule mission = new ReservationVehicule();
+                    mission.setIdReservationVehicule(rs.getInt("id_reservation_vehicule"));
+                    
+                    // Utilise les setters "bridge" de ton modèle (Timestamp -> String)
+                    mission.setDateHeureDepart(rs.getTimestamp("date_heure_depart"));
+                    mission.setDateHeureRetour(rs.getTimestamp("date_heure_retour"));
+                    mission.setIdVehicule(rs.getInt("id_vehicule"));
+                    
+                    // Champs de jointure directs
+                    mission.setModelVehicule(rs.getString("model_vehicule"));
+                    mission.setNbPlaceVehicule(rs.getInt("nb_place_vehicule"));
+                    mission.setNomCarburant(rs.getString("nom_carburant"));
+
+                    // Récupérer les passagers pour cette mission
+                    mission.setPassagers(findPassengersForMission(mission.getIdReservationVehicule(), conn));
+                    missions.add(mission);
+                }
             }
         }
+        return missions;
+    }
+
+    private List<Reservation> findPassengersForMission(int idMission, Connection conn) throws SQLException {
+        List<Reservation> passagers = new ArrayList<>();
+        String query = """
+            SELECT r.*, c.nom_client, l.libelle as libelle_lieu, h.nom_hotel
+            FROM details_reservation_client drc
+            JOIN reservation_client r ON drc.id_reservation_client = r.id_reservation_client
+            JOIN hotel h ON r.id_hotel = h.id_hotel 
+            JOIN client c ON r.id_client = c.id_client
+            JOIN lieu l ON h.id_lieu = l.id_lieu
+            WHERE drc.id_reservation_vehicule = ?
+            """;
         
-        // Ajouter le trajet retour vers l'aéroport (depuis le dernier lieu)
-        if (!reservations.isEmpty()) {
-            int dernierLieu = reservations.get(reservations.size() - 1).getIdLieu();
-            double distanceRetour = getDistanceEntreLieux(dernierLieu, idAeroport);
-            double tempsRetourHeures = distanceRetour / vitessMoyenne;
-            long tempsRetourMinutes = (long) (tempsRetourHeures * 60);
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, idMission);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Reservation res = new Reservation();
+                    res.setIdReservation(rs.getInt("id_reservation_client"));
+                    res.setNbPassager(rs.getInt("nb_passager"));
+                    res.setStatus(rs.getString("status"));
+                    res.setDateHeureArrivee(rs.getTimestamp("date_heure_arrivee"));
+                    res.setNomClient(rs.getString("nom_client"));
+                    res.setLibelleLieu(rs.getString("libelle_lieu"));
+                    res.setNomHotel(rs.getString("nom_hotel"));
+                    
+                    passagers.add(res);
+                }
+            }
+
             
-            cal.add(Calendar.MINUTE, (int)tempsRetourMinutes);
         }
+        return passagers;
+    }
+    /**
+ * Annule une mission : Libère les passagers et supprime l'assignation.
+ * @param idMission L'ID de la reservation_vehicule à supprimer
+ */
+public void annulerAssignation(int idMission) throws SQLException {
+    Connection conn = DatabaseConnection.getConnection();
+    try {
+        conn.setAutoCommit(false); // Transaction pour garantir l'intégrité
+
+        // 1. Remettre le statut des clients liés à cette mission en 'EN_ATTENTE'
+        String queryLiberePassagers = """
+            UPDATE reservation_client 
+            SET status = 'EN_ATTENTE' 
+            WHERE id_reservation_client IN (
+                SELECT id_reservation_client FROM details_reservation_client 
+                WHERE id_reservation_vehicule = ?
+            )
+            """;
         
-        return new Timestamp(cal.getTimeInMillis());
+        try (PreparedStatement stmt1 = conn.prepareStatement(queryLiberePassagers)) {
+            stmt1.setInt(1, idMission);
+            stmt1.executeUpdate();
+        }
+
+        // 2. Supprimer les liens dans la table de détails (Clé étrangère)
+        String queryDeleteDetails = "DELETE FROM details_reservation_client WHERE id_reservation_vehicule = ?";
+        try (PreparedStatement stmt2 = conn.prepareStatement(queryDeleteDetails)) {
+            stmt2.setInt(1, idMission);
+            stmt2.executeUpdate();
+        }
+
+        // 3. Enfin, supprimer la mission (le trajet du véhicule)
+        String queryDeleteMission = "DELETE FROM reservation_vehicule WHERE id_reservation_vehicule = ?";
+        try (PreparedStatement stmt3 = conn.prepareStatement(queryDeleteMission)) {
+            stmt3.setInt(1, idMission);
+            stmt3.executeUpdate();
+        }
+
+        conn.commit();
+    } catch (SQLException e) {
+        conn.rollback();
+        throw e;
+    } finally {
+        conn.setAutoCommit(true);
     }
 }
-
+}
