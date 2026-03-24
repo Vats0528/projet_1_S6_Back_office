@@ -1,19 +1,11 @@
 package com.projet.controller;
 
-import com.framework.annotation.RestController;
-import com.framework.annotation.GetMapping;
-import com.framework.annotation.PostMapping;
-import com.framework.annotation.PutMapping;
-import com.framework.annotation.DeleteMapping;
-import com.framework.annotation.PathVariable;
-import com.framework.annotation.RequestBody;
-import com.framework.annotation.CrossOrigin;
+import com.framework.annotation.*;
 import com.framework.util.ResponseEntity;
 import com.framework.util.HttpStatus;
 
 import com.projet.model.Reservation;
 import com.projet.repository.ReservationRepository;
-import com.projet.service.TokenService;
 
 import java.util.List;
 
@@ -21,196 +13,132 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class ReservationController {
 
-    private ReservationRepository reservationRepository = new ReservationRepository();
-    private TokenService tokenService = new TokenService();
+    private final ReservationRepository reservationRepository = new ReservationRepository();
 
     /**
-     *  Vérification centralisée du token
+     * Liste toutes les réservations.
      */
-    private ResponseEntity<?> checkToken(String token) {
-        try {
-            if (token == null || token.trim().isEmpty()) {
-                return ResponseEntity
-                        .status(HttpStatus.UNAUTHORIZED)
-                        .body("Token absent");
-            }
-
-            boolean isValid = tokenService.validateToken(token);
-
-            if (!isValid) {
-                return ResponseEntity
-                        .status(HttpStatus.UNAUTHORIZED)
-                        .body("Token invalide ou expiré");
-            }
-
-            return null; // Token valide
-
-        } catch (Exception e) {
-            return ResponseEntity
-                    .status(HttpStatus.FORBIDDEN)
-                    .body("Token révoqué ou accès interdit");
-        }
-    }
-
-    /**
-     * GET /main/{token}/api/reservations
-     */
-    @GetMapping("/main/{token}/api/reservations")
-    public ResponseEntity<List<Reservation>> getAllReservations(
-            @PathVariable("token") String token) {
-
-        ResponseEntity<?> security = checkToken(token);
-        if (security != null)
-            return (ResponseEntity<List<Reservation>>) security;
-
+    @GetMapping("/api/reservations")
+    public ResponseEntity<List<Reservation>> getAllReservations() {
         try {
             List<Reservation> reservations = reservationRepository.findAll();
             return ResponseEntity.ok(reservations);
-
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
     /**
-     * GET /main/{token}/api/reservations/date/{date}
-     * Format date: YYYY-MM-DD
+     * Récupère les réservations 'EN_ATTENTE' pour une date précise (Utile pour le Front avant simulation).
      */
-    @GetMapping("/main/{token}/api/reservations/date/{date}")
-    public ResponseEntity<List<Reservation>> getReservationsByDate(
-            @PathVariable("token") String token,
-            @PathVariable("date") String date) {
-
-        ResponseEntity<?> security = checkToken(token);
-        if (security != null)
-            return (ResponseEntity<List<Reservation>>) security;
-
+    @GetMapping("/api/reservations/unassigned/{date}")
+    public ResponseEntity<List<Reservation>> getUnassignedByDate(@PathVariable("date") String date) {
         try {
-            List<Reservation> reservations = reservationRepository.findByDate(date);
+            List<Reservation> reservations = reservationRepository.findUnassignedByDate(date);
             return ResponseEntity.ok(reservations);
-
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
     /**
-     * GET /main/{token}/api/reservations/{id}
+     * Crée une nouvelle réservation.
+     * Note : On extrait l'id_hotel car c'est la clé étrangère physique en DB.
      */
-    @GetMapping("/main/{token}/api/reservations/{id}")
-    public ResponseEntity<Reservation> getReservationById(
-            @PathVariable("token") String token,
-            @PathVariable("id") int id) {
+    @PostMapping("/api/reservations")
+    public ResponseEntity<Reservation> createReservation(@RequestBody Reservation reservation) {
+        try {
+            // 1. Sécurité : Statut par défaut
+            if (reservation.getStatus() == null || reservation.getStatus().isEmpty()) {
+                reservation.setStatus("EN_ATTENTE");
+            }
+            
+            // 2. Utilisation de l'ID Hotel envoyé dans le JSON
+            // On appelle la méthode save qui prend l'objet reservation
+            // Elle utilisera en interne reservation.getIdHotel()
+            Reservation created = reservationRepository.save(reservation);
+            
+            // 3. Rechargement complet 
+            // Important pour récupérer le nom de l'hôtel et le libellé du lieu via les JOIN
+            created = reservationRepository.findById(created.getIdReservation());
+            
+            return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 
-        ResponseEntity<?> security = checkToken(token);
-        if (security != null)
-            return (ResponseEntity<Reservation>) security;
-
+    /**
+     * Récupère une réservation spécifique.
+     */
+    @GetMapping("/api/reservations/{id}")
+    public ResponseEntity<Reservation> getReservationById(@PathVariable("id") int id) {
         try {
             Reservation reservation = reservationRepository.findById(id);
-
             if (reservation != null) {
                 return ResponseEntity.ok(reservation);
             }
-
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body(null);
-
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
     /**
-     * POST /main/{token}/api/reservations
+     * Mise à jour du statut ou des informations.
      */
-    @PostMapping("/main/{token}/api/reservations")
-    public ResponseEntity<Reservation> createReservation(
-            @PathVariable("token") String token,
-            @RequestBody Reservation reservation) {
-
-        ResponseEntity<?> security = checkToken(token);
-        if (security != null)
-            return (ResponseEntity<Reservation>) security;
-
+    @PutMapping("/api/reservations/{id}")
+    public ResponseEntity<Reservation> updateReservation(@PathVariable("id") int id, @RequestBody Reservation reservation) {
         try {
-            Reservation created = reservationRepository.save(reservation);
-            created = reservationRepository.findById(created.getIdReservation());
-
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(created);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
-        }
-    }
-
-    /**
-     * PUT /main/{token}/api/reservations/{id}
-     */
-    @PutMapping("/main/{token}/api/reservations/{id}")
-    public ResponseEntity<Reservation> updateReservation(
-            @PathVariable("token") String token,
-            @PathVariable("id") int id,
-            @RequestBody Reservation reservation) {
-
-        ResponseEntity<?> security = checkToken(token);
-        if (security != null)
-            return (ResponseEntity<Reservation>) security;
-
-        try {
-            reservation.setIdReservation(id);
-            Reservation updated = reservationRepository.update(reservation);
-            updated = reservationRepository.findById(id);
-
+            // Si on ne change que le statut
+            reservationRepository.updateStatus(id, reservation.getStatus());
+            
+            Reservation updated = reservationRepository.findById(id);
             return ResponseEntity.ok(updated);
-
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
     /**
-     * DELETE /main/{token}/api/reservations/{id}
+     * Supprime une réservation.
      */
-    @DeleteMapping("/main/{token}/api/reservations/{id}")
-    public ResponseEntity<Void> deleteReservation(
-            @PathVariable("token") String token,
-            @PathVariable("id") int id) {
-
-        ResponseEntity<?> security = checkToken(token);
-        if (security != null)
-            return (ResponseEntity<Void>) security;
-
+    @DeleteMapping("/api/reservations/{id}")
+    public ResponseEntity<Void> deleteReservation(@PathVariable("id") int id) {
         try {
             reservationRepository.delete(id);
-
-            return ResponseEntity
-                    .status(HttpStatus.NO_CONTENT)
-                    .body(null);
-
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    /**
+     * Regroupe les réservations par fenêtre de temps (TA) pour une date donnée.
+     * GET /api/reservations/groups/{date}
+     * Retourne une List<List<Reservation>> (Liste à deux dimensions).
+     */
+    @GetMapping("/api/reservations/groups/{date}")
+    public ResponseEntity<List<List<Reservation>>> getRegroupements(@PathVariable("date") String date) {
+        try {
+            // Appel de la logique algorithmique du Repository
+            List<List<Reservation>> groupes = reservationRepository.regrouperReservations(date);
+            
+            if (groupes.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+            }
+            
+            return ResponseEntity.ok(groupes);
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Retourne une erreur 500 si le calcul ou la base de données échoue
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 }
