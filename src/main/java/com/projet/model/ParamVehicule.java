@@ -7,6 +7,12 @@ public class ParamVehicule {
     private int taS;           // Correction : ta_s présent en DB
 
     public ParamVehicule() {}
+  
+    public ParamVehicule(int idParamVehicule, int vitessMoyenne, int tempsAttente) {
+        this.idParamVehicule = idParamVehicule;
+        this.vitessMoyenne = vitessMoyenne;
+        this.tempsAttente = tempsAttente;
+    }
 
     public int getIdParamVehicule() { return idParamVehicule; }
     public void setIdParamVehicule(int id) { this.idParamVehicule = id; }

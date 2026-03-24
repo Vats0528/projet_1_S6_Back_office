@@ -52,4 +52,3 @@ statu todo(avancement) [ENCOURS]    : 10/10
 etape actuelle du workflow sprint 1 : End  [BO / FO]
 
 
-

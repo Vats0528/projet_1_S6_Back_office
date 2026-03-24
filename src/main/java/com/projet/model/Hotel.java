@@ -3,7 +3,7 @@ package com.projet.model;
 public class Hotel {
     private int idHotel;
     private String nomHotel;
-    private int idLieu; // La clé étrangère indispensable
+    private int idLieu; 
     
     // Champ de jointure (pour l'affichage)
     private String libelleLieu;
