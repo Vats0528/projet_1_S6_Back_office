@@ -130,10 +130,11 @@ public class VehiculeRepository {
     public List<Vehicule> findByCapacity(int places) throws SQLException {
         List<Vehicule> vehicules = new ArrayList<>();
         String query = """
-            SELECT id_vehicule, immatriculation, modele, capacite, consommation 
-            FROM vehicule 
-            WHERE capacite >= ? 
-            ORDER BY consommation ASC
+            SELECT v.id_vehicule, v.model, v.nb_place, v.id_carburant, c.nom_carburant
+            FROM vehicule v
+            JOIN carburant c ON v.id_carburant = c.id_carburant
+            WHERE v.nb_place >= ?
+            ORDER BY v.nb_place ASC, v.id_carburant ASC
             """;
         
         try (Connection conn = DatabaseConnection.getConnection();
@@ -154,7 +155,12 @@ public class VehiculeRepository {
      * Recherche un véhicule spécifique par son ID.
      */
     public Vehicule findById(int id) throws SQLException {
-        String query = "SELECT * FROM vehicule WHERE id_vehicule = ?";
+        String query = """
+            SELECT v.id_vehicule, v.model, v.nb_place, v.id_carburant, c.nom_carburant
+            FROM vehicule v
+            JOIN carburant c ON v.id_carburant = c.id_carburant
+            WHERE v.id_vehicule = ?
+            """;
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, id);
